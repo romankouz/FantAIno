@@ -1,0 +1,5 @@
+.env
+.cache
+/FanTAIno
+/__pycache__
+/data
