@@ -63,18 +63,21 @@ def get_album_data_from_items(items: list[dict], target_album_name: str) -> dict
 def get_spotify_artist_popularity(artist_name: str):
 
     cleaned_artist_name = clean_name(artist_name)
-    if "&" in artist_name:
-        artists = artist_name.split("&")
-        for artist in artists:
-            solo_artist = get_spotify_artist(artist.strip())
-            if solo_artist:
-                artist = solo_artist
-                break
-    else:
-        artist = get_spotify_artist(cleaned_artist_name)
+    # try getting the artist
+    artist = get_spotify_artist(cleaned_artist_name)
+    if not artist:
+        # if you fail, try splitting the ampersan
+        if "&" in artist_name:
+            artists = artist_name.split("&")
+            for artist in artists:
+                solo_artist = get_spotify_artist(artist.strip())
+                if solo_artist:
+                    artist = solo_artist
+                    break
     
-    spotify_popularity = artist['popularity']
-    return spotify_popularity
+    if artist:
+        spotify_popularity = artist['popularity']
+        return spotify_popularity
 
 def get_spotify_artist(artist_name: str):
 
@@ -82,10 +85,10 @@ def get_spotify_artist(artist_name: str):
     results = _spotify.search(q=f'artist:{cleaned_artist_name}', type='artist', market=None)
     artist_items = results['artists']['items'] 
     for artist in artist_items:
-        if artist['name'] == cleaned_artist_name:
+        if artist['name'].lower() == cleaned_artist_name.lower():
             return artist
         renamed_artist = MELONDY_TO_SPOTIFY['artist_name'].get(cleaned_artist_name, cleaned_artist_name)
-        if artist['name'] == renamed_artist:
+        if artist['name'].lower() == renamed_artist.lower():
             return artist
     return {}
 
@@ -117,7 +120,8 @@ def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
             ):
                 tracks = _spotify.album_tracks(album_id=album["id"])
                 track_items = tracks['items']
-                return {"album": album, "tracks": track_items}
+                artist_popularity = get_spotify_artist_popularity(cleaned_artist_name)
+                return {"album": album, "tracks": track_items, "artist_popularity": artist_popularity}
 
     results = _spotify.search(q=f'artist:{cleaned_artist_name} album:{cleaned_album_name}', type='album', market=None)
     album_items = results['albums']['items']
@@ -125,6 +129,8 @@ def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
     # Try to find the album using the initial search results.
     found_album_data = get_album_data_from_items(album_items, cleaned_album_name)
     if found_album_data:
+        artist_popularity = get_spotify_artist_popularity(cleaned_artist_name)
+        found_album_data["artist_popularity"] = artist_popularity
         return found_album_data
 
     # If the album wasn't found, it might be due to different naming conventions.
@@ -135,6 +141,8 @@ def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
     album_items = results['albums']['items']
     found_album_data = get_album_data_from_items(album_items, cleaned_album_name)
     if found_album_data:
+        artist_popularity = get_spotify_artist_popularity(cleaned_artist_name)
+        found_album_data["artist_popularity"] = artist_popularity
         return found_album_data
 
     print(f'Album "{cleaned_album_name}" by {cleaned_artist_name} was not retrievable via Spotipy\'s API.')
@@ -161,6 +169,7 @@ def process_spotify_album_data(album_dict: dict[str, dict]) -> list[list[Any]]:
         "featured_artists" - list of featured artists on the album
         "num_features" - the number of featured artists on the album
         "track_names" - list of the track names
+        "artist_popularity" - artist popularity as assumed by Spotify
     """
     if album_dict != {}:
         total_tracks = album_dict['album']['total_tracks']
@@ -179,6 +188,7 @@ def process_spotify_album_data(album_dict: dict[str, dict]) -> list[list[Any]]:
         featured_artists = get_album_features(album_dict['tracks'])
         num_features = int(len(featured_artists))
         track_names = [track.get('name') for track in album_dict['tracks']]
+        artist_popularity = album_dict["artist_popularity"]
 
         return (
             total_tracks,
@@ -190,7 +200,8 @@ def process_spotify_album_data(album_dict: dict[str, dict]) -> list[list[Any]]:
             explicit_proportion,
             featured_artists,
             num_features,
-            track_names
+            track_names,
+            artist_popularity
         )
     else:
-        return (None,) * 10
+        return (None,) * 11

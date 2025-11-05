@@ -1,4 +1,0 @@
-- [ ] KNN
-- [ ] Weighted KNN
-- [ ] LLM predictions
-- [ ] Ordinal Logistic Regression

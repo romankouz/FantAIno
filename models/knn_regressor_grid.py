@@ -38,13 +38,13 @@ FantAIno_KNN_df = melondy_and_spotify_df[FantAIno_KNN_features]
     FantAIno_KNN_y_test
 ) = train_test_split(FantAIno_KNN_df, FantAIno_KNN_response, stratify=FantAIno_KNN_response)
 
-knn = KNeighborsRegressor()
 param_grid = {
     "knn__n_neighbors": [2, 5, 10, 20, 30, 50, 100],
     "knn__weights": ["uniform", "distance"],
 }
-grid_search_cv = GridSearchCV(estimator=pipe, param_grid=param_grid, scoring='r2')
+grid_search_cv = GridSearchCV(estimator=pipe, param_grid=param_grid)
 best_model = grid_search_cv.fit(X=FantAIno_KNN_X_train, y=FantAIno_KNN_y_train)
+
 # save all performance results
 results_df = pd.DataFrame(grid_search_cv.cv_results_)
 results_df.to_csv('results/knn_regression_cv_results.csv', index=False)
@@ -53,7 +53,7 @@ results_df.to_csv('results/knn_regression_cv_results.csv', index=False)
 labels = sorted(FantAIno_KNN_y_test.unique())
 
 raw_preds = best_model.predict(FantAIno_KNN_X_test)
-preds = np.clip(np.rint(raw_preds), a_min=-1, a_max=10)
+preds = np.clip(np.rint(raw_preds), a_min=-1, a_max=10).astype(int)
 acc = accuracy_score(y_true=FantAIno_KNN_y_test, y_pred=preds)
 cm = confusion_matrix(y_true=FantAIno_KNN_y_test, y_pred=preds, labels=labels)
 print(cm)

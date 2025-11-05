@@ -40,7 +40,6 @@ FantAIno_KNN_df = melondy_and_spotify_df.drop(columns=["rating"])
 FantAIno_KNN_X_train = melondy_and_spotify_df_X_train[FantAIno_KNN_features]
 FantAIno_KNN_X_test = melondy_and_spotify_df_X_test[FantAIno_KNN_features]
 
-knn = KNeighborsClassifier()
 param_grid = {
     "knn__n_neighbors": [2, 5, 10, 20, 30, 50, 100],
     "knn__weights": ["uniform", "distance"],
