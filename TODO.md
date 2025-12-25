@@ -3,7 +3,6 @@
 - [X] If artists are separated by &, try getting the album ONLY with the first artist.
 - [ ] Convert spotify_etl to functions.
 - [ ] Try to get the lyrics of every song with Genius.
-- [ ] 
 
 # Models
 - [ ] Learning the weights of features in KNN: https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1
