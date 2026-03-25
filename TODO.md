@@ -6,7 +6,7 @@
 
 # Models
 - [ ] Learning the weights of features in KNN: https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1
-- [ ] Rewrite KNN to have a pipe with standard scaler.
+- [x] Rewrite KNN to have a pipe with standard scaler.
 - [ ] Explore sample weights with KNN to balance classes.
 - [ ] Weighted Feature Sampling for RF
 - [ ] CatBoost
@@ -20,3 +20,4 @@
 - [ ] Make underscores for the relevant helper methods.
 - [ ] Create an abstract class like Jeff did. 
 - [ ] Fix the models to implement the abstract class.
+- [X] Handle the confusion matrix as a reporting function.

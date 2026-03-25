@@ -1,32 +1,41 @@
+import joblib
+import os
+import pandas as pd
+
 from abc import ABC, abstractmethod
+
+import FantAIno
 
 class FantAInoFitter(ABC):
 
-    @property
-    @abstractmethod
-    def estaimtor(self):
-        """The underlying model estimator."""
+    def __init__(self):
+        self.model = None
+        self.model_name = "fantaino_model"
+        self.root_dir = os.path.dirname(os.path.abspath(FantAIno.__path__[0]))
+
+
+    def load_estimator(self, model_run_name: str):
+        """Retrieve the current estimator."""
+        self.model = joblib.load(os.path.join(self.root_dir, "results", self.model_name, model_run_name, "model.joblib"))
+
+    def save_estimator(self, model_run_name: str):
+        """Save the current estimator to a file."""
+        if self.model is None:
+            raise ValueError("No model to save.")
+        
+        model_path = os.path.join(self.root_dir, "results", self.model_name, model_run_name)
+        os.makedirs(model_path, exist_ok=True)
+        joblib.dump(self.model, os.path.join(model_path, "model.joblib"))
+
 
     @abstractmethod
-    def train(input_data, response_data):
+    def train(self, X_train, y_train):
         """Training method"""
 
     @abstractmethod
-    def predict(self, input_data):
+    def predict(self, X_test):
         """Prediction method"""
 
     @abstractmethod
-    def evaluate(self, input_data, response_data, loss_fn):
+    def evaluate(self, X_test, y_test, loss_fn):
         """Evaluation method"""
-
-    @abstractmethod
-    def extract_features(
-        self,
-        dataset,
-        feature_set,
-        omit_mode=True,
-    ):
-
-    @abstractmethod
-    def preprocess(self):
-        """Preprcoessing steps that must occur for this model"""

@@ -103,3 +103,24 @@ def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
     melondy_df.drop(["genre"], axis=1, inplace=True)
 
     return melondy_df
+
+def extract_features(
+    dataset: pd.DataFrame,
+    feature_set: list,
+    omit_mode: bool = True
+) -> pd.DataFrame:
+    """
+        Extracts the features from the input dataset.
+
+        Args:
+            dataset (pd.DataFrame): The dataset to extract features from.
+            feature_set (list): The features to extract.
+            omit_mode (bool): Whether to drop the listed features or to keep them. Default is True.
+
+        Returns:
+            pd.DataFrame: The dataset with the extracted features.
+    """
+    if omit_mode:
+        return dataset.drop(feature_set, axis=1)    
+    else:
+        return dataset[feature_set]
