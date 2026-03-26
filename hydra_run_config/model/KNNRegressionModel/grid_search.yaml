@@ -1,9 +1,9 @@
-_target_: models.knn_classifier.KNNClassifier
+_target_: models.knn_regressor.KNNRegressionModel
 n_neighbors: 5
 param_grid: 
     n_neighbors: [2, 5, 10, 25]
     weights: ["uniform", "distance"]
     p: [1, 2]
-scoring_method: accuracy
+scoring_method: neg_mean_squared_error
 model_run_name: grid
 n_jobs: 4

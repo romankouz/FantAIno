@@ -1,6 +1,6 @@
 mode: train
 model:
-  _target_: models.knn_classifier.KNNClassifier
+  _target_: models.knn_classifier.KNNClassificationModel
   n_neighbors: 5
   param_grid:
     n_neighbors:

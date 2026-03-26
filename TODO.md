@@ -14,10 +14,14 @@
 [ ] LLM predictions
 [ ] Ordinal Logistic Regression
 
+# Runtime Enhancements
+
+- [ ] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
+
 # Code Cleanliness
 
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
-[ ] Edit doc strings to have args returns notation.
+[ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
 [ ] Ensure method strings have new lines.
 [ ] Make underscores for the relevant helper methods.
 [ ] Edit linter to be less picky about line length and snake case.

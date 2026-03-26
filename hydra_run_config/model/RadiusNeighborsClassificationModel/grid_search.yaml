@@ -1,0 +1,9 @@
+_target_: models.radius_neighbors_classifier.RadiusNeighborsClassificationModel
+radius: 5
+param_grid: 
+    radius: [2, 5, 10, 25]
+    weights: ["uniform", "distance"]
+    p: [1, 2]
+scoring_method: accuracy
+model_run_name: grid
+n_jobs: 4

@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+  - dataset:
+  - preprocessing: 
+  - model: RadiusNeighborsRegressionModel/base
+  - optimizer: null
+  - training: sklearn_default
+  - inference:
+
+mode: train

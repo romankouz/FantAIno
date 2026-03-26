@@ -118,7 +118,7 @@ hydra:
     override_dirname: ''
     id: ???
     num: ???
-    config_name: KNNClassifier
+    config_name: KNNClassificationModel
     env_set: {}
     env_copy: []
     config:
@@ -143,9 +143,9 @@ hydra:
     output_dir: C:\Users\Owner\Documents\SillyProjects\FantAIno\outputs\2026-03-26\12-52-47
     choices:
       inference: null
-      training: KNNClassifier
+      training: KNNClassificationModel
       optimizer: null
-      model: KNNClassifier/grid_search
+      model: KNNClassificationModel/grid_search
       preprocessing: null
       dataset: null
       hydra/env: default

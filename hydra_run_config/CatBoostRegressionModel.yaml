@@ -2,9 +2,9 @@ defaults:
   - _self_
   - dataset:
   - preprocessing: 
-  - model: KNNClassifier/grid_search
+  - model: CatBoostRegressionModel/base
   - optimizer: null
-  - training: KNNClassifier
+  - training: catboost_default
   - inference:
 
 mode: train

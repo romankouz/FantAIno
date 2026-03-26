@@ -1,0 +1,12 @@
+mode: train
+model:
+  _target_: models.catboost_classifier.CatBoostClassificationModel
+  iterations: 100
+  depth: 3
+  loss_fn: MultiClass
+  param_grid: null
+  scoring_method: accuracy
+  model_run_name: base
+  n_jobs: 4
+training:
+  lr: 0.01

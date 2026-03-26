@@ -1,0 +1,10 @@
+mode: train
+model:
+  _target_: models.radius_neighbors_regressor.RadiusNeighborsRegressionModel
+  radius: 5
+  param_grid: null
+  scoring_method: neg_mean_squared_error
+  model_run_name: base
+  n_jobs: 4
+training:
+  lr: 0.01
