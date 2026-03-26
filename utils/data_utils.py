@@ -38,6 +38,13 @@ def process_image(artist_name, album_name, original_image_path, rating, train=Tr
     """
         Processes an album image from melondy.com to be of the torchvision.datasets.ImageFolder
         format, where ratings are directories and [artist_name]___[album_name].jpg is the filename.
+
+        Args:
+            artist_name (str): The name of the artist of the album.
+            album_name (str): The name of the album.
+            original_image_path (str): The URL to the stored image of the album. Usually a cloudfront URL.
+            rating (int): The integer converted Fantano rating for the album.
+            train (bool): If True, the image will be processed for training. If False, the image will be processed for testing.
     """
     try:
         if original_image_path is not None:
@@ -77,7 +84,7 @@ def clean_name(name: str):
 def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
     """
         Takes the raw melondy data extraction and creates genre dummies.
-        Keeps only the top K percent of represented genres in the pool.
+        Keeps only the top_K_pct of represented genres in the pool.
     """
 
     # get the genre counts

@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+  - dataset:
+  - preprocessing: 
+  - model: KNNClassifier/grid_search
+  - optimizer: null
+  - training: KNNClassifier
+  - inference:
+
+mode: train

@@ -18,6 +18,6 @@
 - [ ] Edit doc strings to have args returns notation.
 - [ ] Ensure method strings have new lines.
 - [ ] Make underscores for the relevant helper methods.
-- [ ] Create an abstract class like Jeff did. 
-- [ ] Fix the models to implement the abstract class.
+- [x] Fix the models to implement the abstract class.
 - [X] Handle the confusion matrix as a reporting function.
+- [x] Create an abstract class like Jeff did. 

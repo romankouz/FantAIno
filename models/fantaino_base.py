@@ -16,16 +16,17 @@ class FantAInoFitter(ABC):
 
     def load_estimator(self, model_run_name: str):
         """Retrieve the current estimator."""
-        self.model = joblib.load(os.path.join(self.root_dir, "results", self.model_name, model_run_name, "model.joblib"))
+        self.model = joblib.load(os.path.join(self.root_dir, "results", self.model_name, f"{model_run_name}.joblib"))
+
 
     def save_estimator(self, model_run_name: str):
         """Save the current estimator to a file."""
         if self.model is None:
             raise ValueError("No model to save.")
         
-        model_path = os.path.join(self.root_dir, "results", self.model_name, model_run_name)
+        model_path = os.path.join(self.root_dir, "results", self.model_name)
         os.makedirs(model_path, exist_ok=True)
-        joblib.dump(self.model, os.path.join(model_path, "model.joblib"))
+        joblib.dump(self.model, os.path.join(model_path, f"{model_run_name}.joblib"))
 
 
     @abstractmethod

@@ -1,0 +1,19 @@
+mode: train
+model:
+  _target_: models.knn_classifier.KNNClassifier
+  n_neighbors: 5
+  param_grid:
+    n_neighbors:
+    - 2
+    - 5
+    weights:
+    - uniform
+    - distance
+    p:
+    - 1
+    - 2
+    n_jobs:
+    - 4
+  scoring_method: accuracy
+  model_run_name: grid
+training: {}
