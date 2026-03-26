@@ -1,8 +1,0 @@
-model:
-  _target_: models.knn_classifier.KNNClassificationModel
-  name: KNNClassificationModel
-  n_neighbors: 5
-  param_grid: null
-  scoring_method: accuracy
-  model_run_name: base
-training: {}
