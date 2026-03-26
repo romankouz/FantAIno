@@ -10,7 +10,6 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from constants import MELONDY_TO_SPOTIFY
 from utils.data_utils import clean_name
 
-# Load environment variables from .env file
 load_dotenv()
 
 _spotify = spotipy.Spotify(
@@ -21,6 +20,16 @@ _spotify = spotipy.Spotify(
 )
 
 def get_album_features(track_items: dict) -> list[str]:
+    """
+    Retrieves all featured artists on the tracks of an album.
+
+    Args:
+        track_items (dict): A dictionary object containing relevant track information.
+
+    Returns:
+        list[str]: A list of all featured artists on the tracks of an album.
+    """
+
     artists = []
     artist_set = set()
     for track in track_items:
@@ -35,7 +44,15 @@ def get_album_data_from_items(items: list[dict], target_album_name: str) -> dict
     Helper function to find a matching album in a list of Spotify album items.
     It first tries to find an exact or partial name match.
     If no specific match, it returns the first album in the list if available.
+
+    Args:
+        items (list[dict]): A list of Spotify album dictionary items (usually a short list of albums returned by Spotify search API query)
+        target_album_name (str): The name of the target album..
+
+    Returns:
+        dict[str, Any] | None: A dictionary object containing the album details and its tracks if found, otherwise None.
     """
+
     for album in items:
         # Clean the Spotify album name for comparison, converting to lowercase
         spotify_album_name_cleaned = clean_name(album["name"]).lower()
@@ -61,7 +78,7 @@ def get_album_data_from_items(items: list[dict], target_album_name: str) -> dict
     return None
 
 def get_spotify_artist_popularity(artist_name: str):
-
+    """Given artist name, returns the popularity of the artist as assumed by Spotify."""
     cleaned_artist_name = clean_name(artist_name)
     # try getting the artist
     artist = get_spotify_artist(cleaned_artist_name)
@@ -93,6 +110,15 @@ def get_spotify_artist(artist_name: str):
     return {}
 
 def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
+    """
+
+    Args:
+        artist_name (str): the name of the artist
+        album_name (str): the name of the album
+
+    Returns:
+        dict[str, Any]: ??????????
+    """
     
     cleaned_album_name = clean_name(album_name)
     cleaned_artist_name = clean_name(artist_name)
@@ -154,22 +180,24 @@ def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
         print(f'An unexpected error occurred: {e}')
     return {}
 
-def process_spotify_album_data(album_dict: dict[str, dict]) -> list[list[Any]]:
+def process_spotify_album_data(album_dict: dict[str, dict]) -> tuple[Any, ...]:
     """
         Given a spotify response about an album, we process it further to create a tabular dataset.
-        Returns the following features:
+        Returns:
+        
+        tuple[Any, ...]:
 
-        "total_tracks" - the number of tracks on the album
-        "num_available_markets" - the number of markets this album is available in
-        "release_year" - the year the album released
-        "release_month" - the month the album released
-        "release_day" - the day the album released
-        "album_duration_in_s" - album duration in seconds
-        "explicit_proportion" - the proportion of songs on the album that have explicit lyrics
-        "featured_artists" - list of featured artists on the album
-        "num_features" - the number of featured artists on the album
-        "track_names" - list of the track names
-        "artist_popularity" - artist popularity as assumed by Spotify
+            "total_tracks" (int) - the number of tracks on the album
+            "num_available_markets" (int) - the number of markets this album is available in
+            "release_year" (int) - the year the album released
+            "release_month" (int) - the month the album released
+            "release_day" (int) - the day the album released
+            "album_duration_in_s" (float) - album duration in seconds
+            "explicit_proportion" (float) - the proportion of songs on the album that have explicit lyrics
+            "featured_artists" (list[str]) - list of featured artists on the album
+            "num_features" (int) - the number of featured artists on the album
+            "track_names" (list[str]) - list of the track names
+            "artist_popularity" (int) - artist popularity as assumed by Spotify
     """
     if album_dict != {}:
         total_tracks = album_dict['album']['total_tracks']

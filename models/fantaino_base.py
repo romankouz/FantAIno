@@ -31,12 +31,12 @@ class FantAInoFitter(ABC):
 
     @abstractmethod
     def train(self, X_train, y_train):
-        """Training method"""
+        """Training method."""
 
     @abstractmethod
     def predict(self, X_test):
-        """Prediction method"""
+        """Prediction method."""
 
     @abstractmethod
     def evaluate(self, X_test, y_test, loss_fn):
-        """Evaluation method"""
+        """Evaluation method."""

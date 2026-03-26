@@ -5,10 +5,7 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 def generate_confusion_matrix(y_true, y_pred, model_filename):
-    """
-    Generates a confusion matrix from the true and predicted labels.
-    """
-    
+    """Generates a confusion matrix from the true and predicted labels."""
     cm = confusion_matrix(y_true, y_pred)
     labels = np.arange(-1, 11)
     sns.heatmap(cm,
@@ -27,6 +24,5 @@ def generate_confusion_matrix(y_true, y_pred, model_filename):
     plt.savefig(f"results/{model_filename}.png")
 
 def simple_results_csv(y_true, y_pred, output_filename):
-    """
-        Saves song name, artist, true rating, and predicted rating.
-    """
+    """Saves song name, artist, true rating, and predicted rating."""
+    raise NotImplementedError("Not implemented yet.")

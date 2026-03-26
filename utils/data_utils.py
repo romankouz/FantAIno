@@ -17,9 +17,10 @@ sys.path.append(package_root_dir)
 def process_scraped_data(scraped_data: list) -> list:
     """
         An archived function that helped process album reviews straight from theneedledrop.com.
-        Given a list of URLs, we only want to scrape the ones that indicated it was one that had the album review
-        script and with a numerical score to scrape.
+        Given a list of URLs, we only want to scrape the ones that indicated it was one 
+        that had the album review script and with a numerical score to scrape.
     """
+
     processed_data = []
     for i in range(len(scraped_data)):
         if scraped_data[i]['url'].endswith("album-review/"):
@@ -27,9 +28,7 @@ def process_scraped_data(scraped_data: list) -> list:
     return processed_data
 
 def sanitize_filename(filename: str) -> str:
-    """
-        Removes any invalid characters from a filename.
-    """
+    """Removes any invalid characters from a filename."""
     for banned_char in '<>:"/|?*\\':
         filename = filename.replace(banned_char, "_")
     return filename
@@ -46,11 +45,12 @@ def process_image(artist_name, album_name, original_image_path, rating, train=Tr
             rating (int): The integer converted Fantano rating for the album.
             train (bool): If True, the image will be processed for training. If False, the image will be processed for testing.
     """
+
     try:
         if original_image_path is not None:
             train_folder = "train" if train else "test"
             _, extension = os.path.splitext(original_image_path)
-            response = requests.get(original_image_path)
+            response = requests.get(original_image_path, timeout=10)
             img = Image.open(BytesIO(response.content))
             album_image_filename = sanitize_filename(f"{artist_name}___{album_name}{extension}")
             new_file = os.path.join(os.getcwd(), "album_ImageFolder", train_folder, f"{rating}", album_image_filename)
@@ -65,15 +65,11 @@ def process_image(artist_name, album_name, original_image_path, rating, train=Tr
         print(e)
 
 def process_image_series(s, train=True):
-    """
-        Process all the images in the melondy dataset.
-    """
+    """Process all the images in the melondy dataset."""
     return process_image(s["artist"], s["album"], s["image_url"], s["rating"], train=train)
 
 def clean_name(name: str):
-    """
-        Removes any unwanted characters from album names scraped from melondy.com.
-    """
+    """Removes any unwanted characters in album names scraped from melondy.com."""
     name = name.replace("’", "'") # remove right side smart apostrophes and replace with single quote
     name = name.replace('•', '') # remove bullet points as they don't show up on spotify album titles
     name = name.replace('“', '"') # replace left double quotation mark with regular double quote
@@ -83,8 +79,8 @@ def clean_name(name: str):
 
 def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
     """
-        Takes the raw melondy data extraction and creates genre dummies.
-        Keeps only the top_K_pct of represented genres in the pool.
+    Takes the raw melondy data extraction and creates genre dummies.
+    Keeps only the top_K_pct of represented genres in the pool.
     """
 
     # get the genre counts
@@ -117,17 +113,18 @@ def extract_features(
     omit_mode: bool = True
 ) -> pd.DataFrame:
     """
-        Extracts the features from the input dataset.
+    Extracts the features from the input dataset.
 
-        Args:
-            dataset (pd.DataFrame): The dataset to extract features from.
-            feature_set (list): The features to extract.
-            omit_mode (bool): Whether to drop the listed features or to keep them. Default is True.
+    Args:
+        dataset (pd.DataFrame): The dataset to extract features from.
+        feature_set (list): The features to extract.
+        omit_mode (bool): Whether to drop the listed features or to keep them. Default is True.
 
-        Returns:
-            pd.DataFrame: The dataset with the extracted features.
+    Returns:
+        pd.DataFrame: The dataset with the extracted features.
     """
+
     if omit_mode:
-        return dataset.drop(feature_set, axis=1)    
+        return dataset.drop(feature_set, axis=1)
     else:
         return dataset[feature_set]

@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from constants import FANTANO_WEBSITE_URL_ROOT
 
 async def crawl(config: Config):
+    """Scrapes theneedledrop.com for album review URLs and their corresponding HTML content stored in json format."""
     visited_pages = set()
     results = []
     queue = deque([config.url])
