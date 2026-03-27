@@ -1,7 +1,7 @@
 import pandas as pd
 
 from sklearn.exceptions import NotFittedError
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import RadiusNeighborsRegressor
 from sklearn.utils.validation import check_is_fitted
@@ -50,7 +50,7 @@ class RadiusNeighborsRegressionModel(FantAInoFitter):
             raise NotFittedError("Model must be fitted before predicting.") from exc
         return self.model.predict(X_test)
 
-    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: accuracy_score) -> float:
+    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: mean_squared_error) -> float:
         try:
             check_is_fitted(self.model)
         except NotFittedError as exc:
