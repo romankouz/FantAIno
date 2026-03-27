@@ -9,7 +9,7 @@ import FantAIno
 
 root_dir = os.path.dirname(os.path.abspath(FantAIno.__path__[0]))
 
-@hydra.main(version_base=None, config_path=os.path.join(root_dir, "hydra_run_config"), config_name="RadiusNeighborsRegressionModel")
+@hydra.main(version_base=None, config_path=os.path.join(root_dir, "hydra_run_config"), config_name="CatBoostClassificationModel")
 def FantAInoRun(cfg: DictConfig) -> None:
     """Run the FantAIno pipeline."""
     print(OmegaConf.to_yaml(cfg))

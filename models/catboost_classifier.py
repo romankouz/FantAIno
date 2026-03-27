@@ -17,6 +17,7 @@ class CatBoostClassificationModel(FantAInoFitter):
         iterations: int = 100,
         depth: int = 3,
         loss_fn: str = "MultiClass",
+        learning_rate: float = 0.01,
         param_grid: dict = None,
         scoring_method: str = "accuracy",
         model_run_name: str = "master",
@@ -31,7 +32,8 @@ class CatBoostClassificationModel(FantAInoFitter):
         self.base_model = CatBoostClassifier(
             iterations=iterations,
             depth=depth,
-            loss_function=loss_fn
+            loss_function=loss_fn,
+            learning_rate=learning_rate
         )
         self.model = self.base_model
         self.model_name = "CatBoost Classifier"

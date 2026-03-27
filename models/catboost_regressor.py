@@ -17,6 +17,7 @@ class CatBoostRegressionModel(FantAInoFitter):
         iterations: int = 100,
         depth: int = 3,
         loss_fn: str = "RMSE",
+        learning_rate: float = 0.01,
         param_grid: dict = None,
         scoring_method: str = "neg_mean_squared_error",
         model_run_name: str = "master",
@@ -31,14 +32,15 @@ class CatBoostRegressionModel(FantAInoFitter):
         self.base_model = CatBoostRegressor(
             iterations=iterations,
             depth=depth,
-            loss_function=loss_fn
+            loss_function=loss_fn,
+            learning_rate=learning_rate
         )
         self.model = self.base_model
         self.model_name = "CatBoost Regressor"
         self.model_run_name = model_run_name
 
     def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
-        
+
         if self.param_grid:
             self.model = GridSearchCV(
                 estimator=self.base_model,
@@ -63,5 +65,3 @@ class CatBoostRegressionModel(FantAInoFitter):
         except NotFittedError as exc:
             raise NotFittedError("Model must be fitted before prediction and evaluation.") from exc
         return loss_fn(self.predict(X_test), y_test)
-
-

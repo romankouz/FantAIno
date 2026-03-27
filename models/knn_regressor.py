@@ -10,7 +10,7 @@ from models.fantaino_base import FantAInoFitter
 
 class KNNRegressionModel(FantAInoFitter):
     """KNN Regressor model for FantAIno."""
-    
+
     def __init__(
         self,
         n_neighbors: int = 5,
@@ -31,7 +31,7 @@ class KNNRegressionModel(FantAInoFitter):
         self.model_run_name = model_run_name
 
     def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
-        
+
         if self.param_grid:
             self.model = GridSearchCV(
                 estimator=self.base_model,
@@ -56,5 +56,3 @@ class KNNRegressionModel(FantAInoFitter):
         except NotFittedError as exc:
             raise NotFittedError("Model must be fitted before prediction and evaluation.") from exc
         return loss_fn(self.predict(X_test), y_test)
-
-

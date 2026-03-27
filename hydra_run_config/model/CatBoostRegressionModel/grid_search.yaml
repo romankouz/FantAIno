@@ -2,6 +2,7 @@ _target_: models.catboost_regressor.CatBoostRegressionModel
 iterations: 100
 depth: 3
 loss_fn: RMSE
+learning_rate: 0.01
 param_grid: 
     iterations: [100, 250, 500]
     depth: [4, 6, 8]
