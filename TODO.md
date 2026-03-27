@@ -9,14 +9,13 @@
 [ ] Learning the weights of features in KNN: [https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1](https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1)
 [ ] Explore sample weights with KNN to balance classes.
 [ ] Weighted Feature Sampling for RF
-[ ] CatBoost
 [ ] Weighted KNN
 [ ] LLM predictions
 [ ] Ordinal Logistic Regression
 
 # Runtime Enhancements
 
-- [ ] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
+[ ] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
 
 # Code Cleanliness
 
@@ -33,4 +32,5 @@
 [x] Create an abstract class like Jeff did. 
 [x] Rewrite KNN to have a pipe with standard scaler.
 [x] If artists are separated by &, try getting the album ONLY with the first artist.
+[X] CatBoost support.
 

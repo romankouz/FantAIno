@@ -36,14 +36,10 @@ def predict(cfg: DictConfig) -> None:
     ) = train_test_split(FantAIno_KNN_df, FantAIno_KNN_response, stratify=FantAIno_KNN_response)
 
     model = instantiate(cfg.model, _convert_="partial")
-    model.train(FantAIno_KNN_X_train, FantAIno_KNN_y_train)
-    model.save_estimator(model.model_run_name)
-
-
-
-
-
-
-
-
-
+    model.load_estimator(model.model_run_name)
+    predictions = model.predict(FantAIno_KNN_X_test)
+    if cfg.mode == "evaluate":
+        loss = model.evaluate(FantAIno_KNN_X_test, FantAIno_KNN_y_test, cfg.loss_fn)
+        return predictions, loss
+    else:
+        return predictions

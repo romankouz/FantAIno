@@ -9,7 +9,8 @@ from sklearn.utils.validation import check_is_fitted
 from models.fantaino_base import FantAInoFitter
 
 class RandomForestRegressionModel(FantAInoFitter):
-
+    """Random Forest Regressor model for FantAIno."""
+    
     def __init__(
         self,
         n_estimators: int = 100,

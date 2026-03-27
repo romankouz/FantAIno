@@ -9,6 +9,7 @@ from sklearn.utils.validation import check_is_fitted
 from models.fantaino_base import FantAInoFitter
 
 class RadiusNeighborsRegressionModel(FantAInoFitter):
+    """Radius Neighbors Regressor model for FantAIno."""
 
     def __init__(
         self,

@@ -9,7 +9,8 @@ from sklearn.utils.validation import check_is_fitted
 from models.fantaino_base import FantAInoFitter
 
 class KNNRegressionModel(FantAInoFitter):
-
+    """KNN Regressor model for FantAIno."""
+    
     def __init__(
         self,
         n_neighbors: int = 5,

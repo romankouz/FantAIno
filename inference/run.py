@@ -16,7 +16,7 @@ def FantAInoRun(cfg: DictConfig) -> None:
 
     if cfg.mode == "train":
         train(cfg=cfg)
-    elif cfg.mode == "predict":
+    elif cfg.mode in ("predict", "evaluate"):
         predict(cfg=cfg)
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ from catboost import CatBoostClassifier
 from models.fantaino_base import FantAInoFitter
 
 class CatBoostClassificationModel(FantAInoFitter):
+    """CatBoost Classifier model for FantAIno."""
 
     def __init__(
         self,

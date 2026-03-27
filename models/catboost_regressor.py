@@ -10,6 +10,7 @@ from catboost import CatBoostRegressor
 from models.fantaino_base import FantAInoFitter
 
 class CatBoostRegressionModel(FantAInoFitter):
+    """CatBoost Regressor model for FantAIno."""
 
     def __init__(
         self,
