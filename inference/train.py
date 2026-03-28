@@ -38,12 +38,3 @@ def train(cfg: DictConfig) -> None:
     model = instantiate(cfg.model, _convert_="partial")
     model.train(FantAIno_KNN_X_train, FantAIno_KNN_y_train)
     model.save_estimator(model.model_run_name)
-
-
-
-
-
-
-
-
-
