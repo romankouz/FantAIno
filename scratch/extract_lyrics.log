@@ -1,0 +1,4 @@
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.musixmatch.com:443
+DEBUG:urllib3.connectionpool:https://www.musixmatch.com:443 "GET /ws/1.1/artist.search?app_id=web-desktop-app-v1.0&format=json&q_artist=%E3%81%8A%E3%81%A8%E3%81%BC%E3%81%91%E3%83%93%E3%80%9C%E3%83%90%E3%80%9C&page_size=100&page=1&signature=ic6rhJW%2BjppAUny27LDeTHbBessnVLI8StHSH1da%2B/w%3D&signature_protocol=sha256 HTTP/1.1" 503 517
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.musixmatch.com:443
+DEBUG:urllib3.connectionpool:https://www.musixmatch.com:443 "GET /ws/1.1/artist.search?app_id=web-desktop-app-v1.0&format=json&q_artist=%E3%81%8A%E3%81%A8%E3%81%BC%E3%81%91%E3%83%93%E3%80%9C%E3%83%90%E3%80%9C&page_size=100&page=1&signature=ic6rhJW%2BjppAUny27LDeTHbBessnVLI8StHSH1da%2B/w%3D&signature_protocol=sha256 HTTP/1.1" 503 524
