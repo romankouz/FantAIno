@@ -3,8 +3,6 @@ from omegaconf import DictConfig, OmegaConf
 
 import FantAIno
 
-from models.knn_classifier import KNNClassificationModel
-
 # train the model
 def train(cfg: DictConfig) -> None:
 

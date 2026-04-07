@@ -33,7 +33,7 @@ def sanitize_filename(filename: str) -> str:
         filename = filename.replace(banned_char, "_")
     return filename
 
-def process_image(artist_name, album_name, original_image_path, rating, train=True):
+def process_torchvision_image(artist_name, album_name, original_image_path, rating, train=True):
     """
         Processes an album image from melondy.com to be of the torchvision.datasets.ImageFolder
         format, where ratings are directories and [artist_name]___[album_name].jpg is the filename.
@@ -66,7 +66,7 @@ def process_image(artist_name, album_name, original_image_path, rating, train=Tr
 
 def process_image_series(s, train=True):
     """Process all the images in the melondy dataset."""
-    return process_image(s["artist"], s["album"], s["image_url"], s["rating"], train=train)
+    return process_torchvision_image(s["artist"], s["album"], s["image_url"], s["rating"], train=train)
 
 def clean_name(name: str):
     """Removes any unwanted characters in album names scraped from melondy.com."""

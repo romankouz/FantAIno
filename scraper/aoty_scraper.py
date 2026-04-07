@@ -1,18 +1,19 @@
-import FantAIno
-import asyncio
-import json
-import jsonlines
-import fnmatch
-from scraper.crawler_config import Config
-import sys
-import os
-import requests
-from urllib.parse import urljoin
-from collections import deque
 
+import fnmatch
+import json
+import os
+from collections import deque
+from urllib.parse import urljoin
+
+import requests
+import jsonlines
 from bs4 import BeautifulSoup
 
 from constants import AOTY_URL_ROOT
+from scraper.crawler_config import Config
+
+import FantAIno
+
 
 def crawl(config: Config):
     visited_pages = set()

@@ -1,9 +1,11 @@
 .env
 .cache
+.pylintrc
 /FanTAIno
 /__pycache__
-/data
+/data/raw
+/data/processed
 /results
 /outputs
-
+/logs
 PACKAGES.md

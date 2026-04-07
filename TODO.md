@@ -2,8 +2,9 @@
 
 [ ] When you collect an album, get ALL the artists that were main artists in the dataset. Ex: Silk Sonic will put Anderson Paak as a featuring artist instead of a lead author. Perhaps make a second column called, artist_2 or something.
 [ ] Convert spotify_etl to functions.
+[ ] We currently have a data input pipeline for S3 that scrapes Melondy based on the most recent reviews. We should also have a pipeline for updating individual albums. Use Case: Album isn't found due to a weird name mismatch and we want to correct for that.
 
-### 0) Using boto3, create an S3 bucket called fantaino-data.
+### 0) Using boto3, create an S3 bucket called fantaino-data. DONE
 ### 1) Check Melondy for the latest review. If the album and artist has been recorded, break.
 ### 2) Otherwise, process the album, merge with spotify, and extract lyrics, and write to S3 bucket.
 
@@ -23,12 +24,23 @@
 
 # Code Cleanliness
 
+[ ] Remove any sys.path.append and create a "package" of this project for imports. (pip install -e .)
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
 [ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
 [ ] Ensure method strings have new lines.
 [ ] Make underscores for the relevant helper methods.
 [ ] Edit linter to be less picky about line length and snake case.
 [ ] Ensure better logging than "print", especially in scratch. Save the print to log files to examine later.
+[ ] Introduce bidict for MELONDY_TO_SPOTIFY usage.
+[ ] Reorder imports.
+    Standard library first
+    fnmatch, json, os, collections, urllib.parse
+
+    Third-party packages next
+    requests, jsonlines, bs4
+
+    Your project/local imports last
+    constants, scraper.crawler_config, FantAIno
 
 # Done!
 

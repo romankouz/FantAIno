@@ -1,5 +1,3 @@
-from bidict import bidict
-
 AOTY_URL_ROOT = "https://www.albumoftheyear.org/publication/57-the-needle-drop/reviews/1/"
 FANTANO_WEBSITE_URL_ROOT = "https://theneedledrop.com/"
 MELONDY_URL = "https://melondy.com"
@@ -95,3 +93,4 @@ MELONDY_TO_SPOTIFY={
         "Floating Points & Pharoah Sanders & The London Symphony Orchestra": "Floating Points",
     }
 }
+S3_BUCKET_NAME = "fantaino-bucket-085777795487-us-east-2-an"
