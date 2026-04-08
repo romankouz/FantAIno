@@ -1,6 +1,0 @@
-_target_: models.random_forest_regressor.RandomForestRegressionModel
-n_estimators: 100
-param_grid: null
-scoring_method: neg_mean_squared_error
-model_run_name: base
-n_jobs: 4

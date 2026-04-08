@@ -6,11 +6,11 @@ import os
 
 from playwright.sync_api import sync_playwright
 
-from constants import MELONDY_URL, S3_BUCKET_NAME
-from utils.data_utils import clean_name
-from utils.genius_utils import get_album_lyrics
-from utils.s3_utils import process_image_s3, process_lyrics_s3
-from utils.logging import create_logger
+from FantAIno.constants import MELONDY_URL, S3_BUCKET_NAME
+from FantAIno.utils.data_utils import clean_name
+from FantAIno.utils.genius_utils import get_album_lyrics
+from FantAIno.utils.s3_utils import process_image_s3, process_lyrics_s3
+from FantAIno.utils.logging import create_logger
 
 load_dotenv()
 
@@ -137,7 +137,7 @@ with sync_playwright() as p:
     MAX_STALE_ROUNDS = 10
 
     # Define how many pixels to scroll down each time
-    SCROLL_STEP = 250
+    SCROLL_STEP = 125
 
     # setup logging
     logger = create_logger("fantaino_data_pull", "get_needledrop_ratings.log", logging.DEBUG)
@@ -146,6 +146,9 @@ with sync_playwright() as p:
 
         # record album data
         current_album_data = set()
+
+        # record failed album processes
+        failed_albums = set()
 
         # Extract data from the currently visible content
         current_album_data.update(scraper(page))
@@ -171,6 +174,8 @@ with sync_playwright() as p:
 
             artist = clean_name(artist)
             album = clean_name(album)
+            if (artist, album) in failed_albums:
+                continue
             # check if album art is processed
             try:
                 s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_art", f"{artist}___{album}.jpg"))
@@ -182,6 +187,7 @@ with sync_playwright() as p:
                 except Exception as e_inner:
                     logger.error("%s's %s had an issue with uploading album art.", artist, album)
                     logger.error("%s", repr(e_inner))
+                    failed_albums.add((artist, album))
 
             # check if lyrics are processed
             try:
@@ -196,6 +202,7 @@ with sync_playwright() as p:
                 except Exception as e_inner:
                     logger.error("%s's %s had an issue with retrieving lyrics.", artist, album)
                     logger.error("%s", repr(e_inner))
+                    failed_albums.add((artist, album))
 
             # check if album data is processed
             try:
@@ -218,9 +225,14 @@ with sync_playwright() as p:
                 except Exception as e_inner:
                     logger.error("%s's %s had an issue with uploading album data.", artist, album)
                     logger.error("%s", repr(e_inner))
+                    failed_albums.add((artist, album))
             
             if (album_art_S3_exists and lyrics_S3_exists and album_data_S3_exists):
                 logger.info("%s's album: %s already exists in S3.", artist, album)
+
+        with open(os.path.join("logs", "failed_albums.json"), "a", encoding="utf-8") as f:
+            for tup in failed_albums:
+                f.write(f"{tup}\n")
 
     # close the browser
     browser.close()

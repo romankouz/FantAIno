@@ -1,0 +1,11 @@
+_target_: FantAIno.models.neighborhood_components_regressor.NeighborhoodComponentsRegressionModel
+n_neighbors: 5
+nca_components: 5
+param_grid: 
+    nca__n_components: [2, 5, 10]
+    knn__n_neighbors: [2, 5, 10, 25]
+    knn__weights: ["uniform", "distance"]
+    knn__p: [1, 2]
+scoring_method: neg_mean_squared_error
+model_run_name: grid_search
+n_jobs: 4

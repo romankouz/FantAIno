@@ -4,10 +4,6 @@
 [ ] Convert spotify_etl to functions.
 [ ] We currently have a data input pipeline for S3 that scrapes Melondy based on the most recent reviews. We should also have a pipeline for updating individual albums. Use Case: Album isn't found due to a weird name mismatch and we want to correct for that.
 
-### 0) Using boto3, create an S3 bucket called fantaino-data. DONE
-### 1) Check Melondy for the latest review. If the album and artist has been recorded, break.
-### 2) Otherwise, process the album, merge with spotify, and extract lyrics, and write to S3 bucket.
-
 # Models
 
 [ ] Learning the weights of features in KNN: [https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1](https://medium.com/analytics-vidhya/feature-engineering-experiment-weighted-knn-3f28dfdf30e1)
@@ -51,4 +47,7 @@
 [x] If artists are separated by &, try getting the album ONLY with the first artist.
 [X] CatBoost support.
 [x] Try to get the lyrics of every song with Genius.
+[x] S3 Integration. 
+[x] Logging: UnicodeEncodeError: 'charmap' codec can't encode character '\u2010' in position 10: character maps to <undefined>
+
 

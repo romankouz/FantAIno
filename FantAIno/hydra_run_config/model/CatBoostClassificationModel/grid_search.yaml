@@ -1,0 +1,14 @@
+_target_: FantAIno.models.catboost_classifier.CatBoostClassificationModel
+iterations: 100
+depth: 3
+loss_fn: MultiClass
+learning_rate: 0.01
+param_grid: 
+    iterations: [100, 250, 500]
+    depth: [4, 6, 8]
+    l2_leaf_reg: [0, 0.01, 0.1]
+    bagging_temperature: [0, 0.01, 0.1]
+    random_strength: [0, 0.01, 0.1]
+scoring_method: accuracy
+model_run_name: base
+n_jobs: 4

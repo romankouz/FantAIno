@@ -1,7 +1,8 @@
 .env
 .cache
 .pylintrc
-/FanTAIno
+/FanTAIno_venv
+fantaino.egg-info
 /__pycache__
 /data/raw
 /data/processed

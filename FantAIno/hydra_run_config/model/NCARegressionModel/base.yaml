@@ -1,0 +1,7 @@
+_target_: FantAIno.models.neighborhood_components_regressor.NeighborhoodComponentsRegressionModel
+n_neighbors: 5
+nca_components: 5
+param_grid: null
+scoring_method: neg_mean_squared_error
+model_run_name: base
+n_jobs: 4

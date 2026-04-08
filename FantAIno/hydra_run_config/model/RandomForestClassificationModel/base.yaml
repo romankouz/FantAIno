@@ -1,0 +1,6 @@
+_target_: FantAIno.models.random_forest_classifier.RandomForestClassificationModel
+n_estimators: 100
+param_grid: null
+scoring_method: accuracy
+model_run_name: base
+n_jobs: 4
