@@ -20,7 +20,6 @@
 
 # Code Cleanliness
 
-[ ] Remove any sys.path.append and create a "package" of this project for imports. (pip install -e .)
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
 [ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
 [ ] Ensure method strings have new lines.
@@ -49,5 +48,6 @@
 [x] Try to get the lyrics of every song with Genius.
 [x] S3 Integration. 
 [x] Logging: UnicodeEncodeError: 'charmap' codec can't encode character '\u2010' in position 10: character maps to <undefined>
+[x] Remove any sys.path.append and create a "package" of this project for imports. (pip install -e .)
 
 

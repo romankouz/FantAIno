@@ -31,7 +31,7 @@ def predict(cfg: DictConfig) -> None:
         FantAIno_KNN_X_test,
         FantAIno_KNN_y_train,
         FantAIno_KNN_y_test
-    ) = train_test_split(FantAIno_KNN_df, FantAIno_KNN_response, stratify=FantAIno_KNN_response)
+    ) = train_test_split(FantAIno_KNN_df, FantAIno_KNN_response, stratify=FantAIno_KNN_response, random_state=888)
 
     model = instantiate(cfg.model, _convert_="partial")
     model.load_estimator(model.model_run_name)

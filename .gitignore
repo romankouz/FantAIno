@@ -3,7 +3,8 @@
 .pylintrc
 /FanTAIno_venv
 fantaino.egg-info
-/__pycache__
+**/__pycache__/
+/__pycache__/
 /data/raw
 /data/processed
 /results

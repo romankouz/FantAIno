@@ -7,7 +7,7 @@ import os
 from playwright.sync_api import sync_playwright
 
 from FantAIno.constants import MELONDY_URL, S3_BUCKET_NAME
-from FantAIno.utils.data_utils import clean_name
+from FantAIno.utils.data_utils import clean_name, sanitize_filename
 from FantAIno.utils.genius_utils import get_album_lyrics
 from FantAIno.utils.s3_utils import process_image_s3, process_lyrics_s3
 from FantAIno.utils.logging import create_logger
@@ -142,16 +142,16 @@ with sync_playwright() as p:
     # setup logging
     logger = create_logger("fantaino_data_pull", "get_needledrop_ratings.log", logging.DEBUG)
 
-    while True:
+    recorded_albums = set()
 
-        # record album data
-        current_album_data = set()
+    while True:
 
         # record failed album processes
         failed_albums = set()
 
         # Extract data from the currently visible content
-        current_album_data.update(scraper(page))
+        current_album_data = scraper(page)
+        new_albums = current_album_data - recorded_albums
 
         # Scroll down by the defined step from the current position
         page.evaluate(f"window.scrollBy(0, {SCROLL_STEP});")
@@ -159,7 +159,7 @@ with sync_playwright() as p:
         # Wait for the page to load any new content after scrolling
         page.wait_for_timeout(500)
 
-        if len(current_album_data) == 0:
+        if len(new_albums) == 0:
             stale_rounds += 1
             if stale_rounds >= MAX_STALE_ROUNDS:
                 break
@@ -167,10 +167,12 @@ with sync_playwright() as p:
             stale_rounds = 0
 
         # check if album is processed or not
-        for artist, album, genre, image_url, rating in current_album_data:
+        for album_tuple in new_albums:
+
+            artist, album, genre, image_url, rating = album_tuple
 
             # processing flags
-            album_art_S3_exists, lyrics_S3_exists, album_data_S3_exists = False, False, False
+            album_art_s3_exists, lyrics_s3_exists, album_data_s3_exists = False, False, False
 
             artist = clean_name(artist)
             album = clean_name(album)
@@ -178,8 +180,10 @@ with sync_playwright() as p:
                 continue
             # check if album art is processed
             try:
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_art", f"{artist}___{album}.jpg"))
-                album_art_S3_exists = True
+                _, extension = os.path.splitext(image_url)
+                album_image_filename = sanitize_filename(f"{artist}___{album}{extension}")
+                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_art", album_image_filename))
+                album_art_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 try:
                     process_image_s3(s3_client, artist, album, image_url)
@@ -191,8 +195,9 @@ with sync_playwright() as p:
 
             # check if lyrics are processed
             try:
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("lyrics", f"{artist}___{album}.jsonl"))
-                lyrics_S3_exists = True
+                lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
+                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("lyrics", lyrics_filename))
+                lyrics_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 try:
                     lyrics = get_album_lyrics(artist, album)
@@ -205,9 +210,10 @@ with sync_playwright() as p:
                     failed_albums.add((artist, album))
 
             # check if album data is processed
+            album_data_filename = sanitize_filename(f"{artist}___{album}.json")
             try:
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_data", f"{artist}___{album}.json"))
-                album_data_S3_exists = True
+                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_data", album_data_filename))
+                album_data_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 album_dict = {
                     "artist": artist,
@@ -219,7 +225,7 @@ with sync_playwright() as p:
                     s3_client.put_object(
                         Body=json.dumps(album_dict).encode("utf-8"),
                         Bucket=S3_BUCKET_NAME,
-                        Key=os.path.join("album_data", f"{artist}___{album}.json")
+                        Key=os.path.join("album_data", album_data_filename)
                     )
                     logger.info("%s's %s album data successfully processed!", artist, album)
                 except Exception as e_inner:
@@ -227,8 +233,9 @@ with sync_playwright() as p:
                     logger.error("%s", repr(e_inner))
                     failed_albums.add((artist, album))
             
-            if (album_art_S3_exists and lyrics_S3_exists and album_data_S3_exists):
+            if (album_art_s3_exists and lyrics_s3_exists and album_data_s3_exists):
                 logger.info("%s's album: %s already exists in S3.", artist, album)
+            recorded_albums.add(album_tuple)
 
         with open(os.path.join("logs", "failed_albums.json"), "a", encoding="utf-8") as f:
             for tup in failed_albums:
