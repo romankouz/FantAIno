@@ -15,6 +15,7 @@ openai
 pandas==2.3.3
 pandarallel
 playwright==1.58.0
+pyiceberg[pandas,pyarrow]
 pytest-playwright==0.7.2
 pydantic==2.12.5
 python-dotenv
@@ -23,6 +24,8 @@ seaborn
 scikit-learn==1.8.0
 spotipy
 streamlit==1.55.0
+tabulate
+transformers
 wandb==0.25.1
 
 --extra-index-url https://download.pytorch.org/whl/cu124

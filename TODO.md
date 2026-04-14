@@ -1,5 +1,6 @@
 # Data
 
+[ ] Create tabular database in AWS for album lyrics embeddings.
 [ ] When you collect an album, get ALL the artists that were main artists in the dataset. Ex: Silk Sonic will put Anderson Paak as a featuring artist instead of a lead author. Perhaps make a second column called, artist_2 or something.
 [ ] Convert spotify_etl to functions.
 [ ] We currently have a data input pipeline for S3 that scrapes Melondy based on the most recent reviews. We should also have a pipeline for updating individual albums. Use Case: Album isn't found due to a weird name mismatch and we want to correct for that.

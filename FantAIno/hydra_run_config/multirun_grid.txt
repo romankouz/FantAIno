@@ -1,0 +1,12 @@
+python -m FantAIno.inference.run -m ^
+"model=CatBoostClassificationModel/grid_search,^
+CatBoostRegressionModel/grid_search,^
+KNNClassificationModel/grid_search,^
+KNNRegressionModel/grid_search,^
+NCAClassificationModel/grid_search,^
+NCARegressionModel/grid_search,^
+OrdinalLogisticRegressionModel/grid_search,^
+RadiusNeighborsClassificationModel/grid_search,^
+RadiusNeighborsRegressionModel/grid_search,^
+RandomForestClassificationModel/grid_search,^
+RandomForestRegressionModel/grid_search"

@@ -17,3 +17,7 @@ include = ["FantAIno*"]
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[tool.pylint.main]
+# Paths are relative to this file; helps Pylint resolve `import FantAIno` from scripts under e.g. data/scripts/
+pythonpath = ["."]

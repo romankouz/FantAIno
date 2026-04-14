@@ -6,7 +6,7 @@ import os
 
 from playwright.sync_api import sync_playwright
 
-from FantAIno.constants import MELONDY_URL, S3_BUCKET_NAME
+from FantAIno.constants import MELONDY_URL, S3_GENERAL_PURPOSE_BUCKET_NAME
 from FantAIno.utils.data_utils import clean_name, sanitize_filename
 from FantAIno.utils.genius_utils import get_album_lyrics
 from FantAIno.utils.s3_utils import process_image_s3, process_lyrics_s3
@@ -182,7 +182,10 @@ with sync_playwright() as p:
             try:
                 _, extension = os.path.splitext(image_url)
                 album_image_filename = sanitize_filename(f"{artist}___{album}{extension}")
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_art", album_image_filename))
+                s3_client.get_object(
+                    Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+                    Key=os.path.join("album_art", album_image_filename)
+                )
                 album_art_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 try:
@@ -196,7 +199,10 @@ with sync_playwright() as p:
             # check if lyrics are processed
             try:
                 lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("lyrics", lyrics_filename))
+                s3_client.get_object(
+                    Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+                    Key=os.path.join("lyrics", lyrics_filename)
+                )
                 lyrics_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 try:
@@ -212,7 +218,10 @@ with sync_playwright() as p:
             # check if album data is processed
             album_data_filename = sanitize_filename(f"{artist}___{album}.json")
             try:
-                s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=os.path.join("album_data", album_data_filename))
+                s3_client.get_object(
+                    Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+                    Key=os.path.join("album_data", album_data_filename)
+                )
                 album_data_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 album_dict = {
@@ -224,7 +233,7 @@ with sync_playwright() as p:
                 try:
                     s3_client.put_object(
                         Body=json.dumps(album_dict).encode("utf-8"),
-                        Bucket=S3_BUCKET_NAME,
+                        Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
                         Key=os.path.join("album_data", album_data_filename)
                     )
                     logger.info("%s's %s album data successfully processed!", artist, album)

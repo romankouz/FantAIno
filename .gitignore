@@ -11,3 +11,7 @@ fantaino.egg-info
 /outputs
 /logs
 PACKAGES.md
+/aws
+/multirun
+/catboost_info
+/scratch/.datachain

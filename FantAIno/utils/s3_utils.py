@@ -5,7 +5,7 @@ import requests
 # from io import BytesIO
 # from PIL import Image
 
-from FantAIno.constants import S3_BUCKET_NAME
+from FantAIno.constants import S3_GENERAL_PURPOSE_BUCKET_NAME
 from FantAIno.utils.data_utils import sanitize_filename
 
 def process_image_s3(s3_client, artist_name, album_name, original_image_path):
@@ -27,7 +27,7 @@ def process_image_s3(s3_client, artist_name, album_name, original_image_path):
             
             s3_client.put_object(
                 Body=response.content,
-                Bucket=S3_BUCKET_NAME,
+                Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
                 Key=os.path.join("album_art", album_image_filename)
             )
     except ConnectionError as e:
@@ -43,7 +43,7 @@ def process_lyrics_s3(s3_client, artist_name, album_name, lyrics):
         lyrics_filename = sanitize_filename(f"{artist_name}___{album_name}.jsonl")
         s3_client.put_object(
             Body=json.dumps(lyrics).encode("utf-8"),
-            Bucket=S3_BUCKET_NAME,
+            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
             Key=os.path.join("lyrics", lyrics_filename)
         )
     except Exception as e:

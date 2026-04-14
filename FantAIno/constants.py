@@ -106,4 +106,7 @@ MELONDY_TO_SPOTIFY={
         "Floating Points & Pharoah Sanders & The London Symphony Orchestra": "Floating Points",
     }
 }
-S3_BUCKET_NAME = "fantaino-bucket-085777795487-us-east-2-an"
+S3_GENERAL_PURPOSE_BUCKET_NAME = "fantaino-bucket-085777795487-us-east-2-an"
+S3_SMALL_EMBEDDINGS_TABLE_BUCKET_NAME = "fantaino-lyrics-embeddings-small"
+S3_LARGE_EMBEDDINGS_TABLE_BUCKET_NAME = "fantaino-lyrics-embeddings-large"
+S3_ALBUM_DATA_TABLE_BUCKET_NAME = "fantaino-album-data"

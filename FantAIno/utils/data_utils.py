@@ -2,6 +2,7 @@
 Helper functions for processing any acquired data of Fantano's reviews
 """
 
+import numpy as np
 import os
 import pandas as pd
 import requests
@@ -125,3 +126,6 @@ def extract_features(
         return dataset.drop(feature_set, axis=1)
     else:
         return dataset[feature_set]
+
+def embeddings_from_lyrics_obj(lyric_obj: dict) -> np.ndarray:
+    pass
