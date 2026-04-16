@@ -79,25 +79,22 @@ def refresh_results(
                         trained_model = joblib.load(os.path.join(root, file))
                         preds = trained_model.predict(FantAIno_KNN_X_test)
                         if any(term in model_name for term in ["Ordinal Logistic", "Classifier"]):
-                            metric = "accuarcy"
+                            metric = "accuracy"
                             score = accuracy_score(FantAIno_KNN_y_test, preds)
                         else:
                             metric = "MSE"
                             score = mean_squared_error(FantAIno_KNN_y_test, preds)
 
-                        results_dict[model_name] = [
-                            run_name,
+                        results_dict[model_name] = results_dict.get(model_name, {})
+                        results_dict[model_name][run_name] = [
                             metric,
                             score,
                         ]
                     except Exception as e:
                         print(f"Model {model_name} failed to load with error: {e}")
 
-    results_df = pd.DataFrame.from_dict(
-        results_dict,
-        orient="index",
-        columns=["run_name", "metric", "score"]
-    )
+    results_df = pd.concat({k: pd.DataFrame(v).T for k, v in results_dict.items()}).reset_index()
+    results_df.columns = ["model", "run_name", "metric", "score"]
 
     results_df.to_csv(os.path.join(RESULTS_DIR, "all_results.csv"), index=True)
 

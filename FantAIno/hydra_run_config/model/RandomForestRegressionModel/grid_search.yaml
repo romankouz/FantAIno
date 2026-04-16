@@ -6,5 +6,5 @@ param_grid:
     max_features: [1.0, "sqrt", "log2", 0.75, 0.6, 0.2]
     min_impurity_decrease: [0.0, 0.001, 0.01, 0.1]
 scoring_method: neg_mean_squared_error
-model_run_name: grid
+model_run_name: grid_search
 n_jobs: 4

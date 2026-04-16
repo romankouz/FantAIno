@@ -7,9 +7,19 @@ import os
 from playwright.sync_api import sync_playwright
 
 from FantAIno.constants import MELONDY_URL, S3_GENERAL_PURPOSE_BUCKET_NAME
-from FantAIno.utils.data_utils import clean_name, sanitize_filename
+from FantAIno.utils.data_utils import clean_name, sanitize_filename, embeddings_from_lyrics_obj
 from FantAIno.utils.genius_utils import get_album_lyrics
-from FantAIno.utils.s3_utils import process_image_s3, process_lyrics_s3
+from FantAIno.utils.spotify_utils import get_spotify_album, process_spotify_album_data
+from FantAIno.utils.s3_utils import (
+    process_image_s3, 
+    process_lyrics_s3,
+    retrieve_s3_table_catalog,
+    create_s3_embeddings_schema,
+    create_s3_album_data_schema,
+    pyiceberg_record_exists,
+    pyiceberg_insert_embeddings_record,
+    pyiceberg_insert_album_data_record
+)
 from FantAIno.utils.logging import create_logger
 
 load_dotenv()
@@ -82,9 +92,10 @@ def scraper(page):
             # EXTRACT GENRES
             # ------------------------------------------------------------
             try:
-                genre_text = review.locator("div.text-gray-500.dark:text-gray-400")
+                genre_text = review.locator("div.flex-1.truncate.text-gray-500")
                 data["genre"] = genre_text.inner_text().split(', ')
             except Exception:
+                logger.error("%s's %s had an issue with extracting genres.", data["artist"], data["album"])
                 data["genre"] = []
 
             # ------------------------------------------------------------
@@ -118,6 +129,52 @@ def scraper(page):
         return set()
 
 with sync_playwright() as p:
+
+    # handle embeddings catalog
+    fantaino_lyrics_embeddings_catalog = retrieve_s3_table_catalog(
+        catalog_name=os.getenv("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
+        account_id=os.getenv("AWS_ACCOUNT_ID"),
+        s3tablebucketname=os.getenv("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
+        region=os.getenv("PYICEBERG_AWS_DEFAULT_REGION"),
+    )
+
+    # handle album data catalog
+    fantaino_album_data_catalog = retrieve_s3_table_catalog(
+        catalog_name=os.getenv("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
+        account_id=os.getenv("AWS_ACCOUNT_ID"),
+        s3tablebucketname=os.getenv("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
+        region=os.getenv("PYICEBERG_AWS_DEFAULT_REGION"),
+    )
+
+    # create lyrics embeddings tables if they don't exist
+    lyrics_embeddings_small_schema = create_s3_embeddings_schema(embeddings_dim=1536)
+    lyrics_embeddings_large_schema = create_s3_embeddings_schema(embeddings_dim=3072)
+    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"):
+        fantaino_lyrics_embeddings_catalog.create_table(
+            identifier=f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small",
+            schema=lyrics_embeddings_small_schema
+        )
+    fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
+        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+    )
+    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"):
+        fantaino_lyrics_embeddings_catalog.create_table(
+            identifier=f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large",
+            schema=lyrics_embeddings_large_schema
+        )
+    fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
+        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+    )
+
+    # create album data table if it does not exist
+    if not fantaino_album_data_catalog.table_exists(f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"):
+        fantaino_album_data_catalog.create_table(
+            identifier=f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data",
+            schema=create_s3_album_data_schema()
+        )
+    fantaino_album_data_table = fantaino_album_data_catalog.load_table(
+        f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+    )
 
     # load our s3 client to check if album is processed or not
     s3_client = boto3.client("s3")
@@ -178,6 +235,7 @@ with sync_playwright() as p:
             album = clean_name(album)
             if (artist, album) in failed_albums:
                 continue
+
             # check if album art is processed
             try:
                 _, extension = os.path.splitext(image_url)
@@ -197,34 +255,88 @@ with sync_playwright() as p:
                     failed_albums.add((artist, album))
 
             # check if lyrics are processed
+            lyrics_obj = {}
             try:
                 lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
-                s3_client.get_object(
+                lyrics_response = s3_client.get_object(
                     Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
                     Key=os.path.join("lyrics", lyrics_filename)
                 )
+                lyrics_obj = json.load(lyrics_response['Body'])
                 lyrics_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
                 try:
-                    lyrics = get_album_lyrics(artist, album)
-                    if lyrics:
-                        process_lyrics_s3(s3_client, artist, album, lyrics)
+                    lyrics_obj = get_album_lyrics(artist, album)
+                    if lyrics_obj:
+                        process_lyrics_s3(s3_client, artist, album, lyrics_obj)
                         logger.info("%s's %s lyrics successfully processed!", artist, album)
                 except Exception as e_inner:
                     logger.error("%s's %s had an issue with retrieving lyrics.", artist, album)
                     logger.error("%s", repr(e_inner))
                     failed_albums.add((artist, album))
 
+            # check if album lyrics embeddings are processed
+            if lyrics_obj:
+                try:
+
+                    album_embeddings_small_exists = pyiceberg_record_exists(
+                        fantaino_lyrics_embeddings_small_table,
+                        artist_name=artist,
+                        album_name=album
+                    )
+
+                    if not album_embeddings_small_exists:
+                        album_lyrics_embeddings_small = embeddings_from_lyrics_obj(lyrics_obj, embeddings_model="text-embedding-3-small")
+                        pyiceberg_insert_embeddings_record(
+                            pyiceberg_table=fantaino_lyrics_embeddings_small_table,
+                            artist_name=artist,
+                            album_name=album,
+                            embeddings=album_lyrics_embeddings_small,
+                            embeddings_schema=lyrics_embeddings_small_schema
+                        )
+                    else:
+                        logger.info("%s's %s album lyrics embeddings (small) already exists.", artist, album)
+                    
+                    album_embeddings_large_exists = pyiceberg_record_exists(
+                        fantaino_lyrics_embeddings_large_table,
+                        artist_name=artist,
+                        album_name=album
+                    )
+                    if not album_embeddings_large_exists:
+                        album_lyrics_embeddings_large = embeddings_from_lyrics_obj(lyrics_obj, embeddings_model="text-embedding-3-large")
+                        pyiceberg_insert_embeddings_record(
+                            pyiceberg_table=fantaino_lyrics_embeddings_large_table,
+                            artist_name=artist,
+                            album_name=album,
+                            embeddings=album_lyrics_embeddings_large,
+                            embeddings_schema=lyrics_embeddings_large_schema
+                        )
+                    else:
+                        logger.info("%s's %s album lyrics embeddings (large) already exists.", artist, album)
+
+                    if not (
+                        album_embeddings_small_exists or 
+                        album_embeddings_large_exists
+                    ):
+                        logger.info("%s's %s album lyrics embeddings (small and large) successfully processed!", artist, album)
+                except Exception as e:
+                    logger.error("%s's %s had an issue with uploading album lyrics embeddings.", artist, album)
+                    logger.error("%s", repr(e))
+                    failed_albums.add((artist, album))
+
+
             # check if album data is processed
             album_data_filename = sanitize_filename(f"{artist}___{album}.json")
+            album_data_obj = {}
             try:
-                s3_client.get_object(
+                album_data_response = s3_client.get_object(
                     Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
                     Key=os.path.join("album_data", album_data_filename)
                 )
+                album_data_obj = json.load(album_data_response['Body'])
                 album_data_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
-                album_dict = {
+                album_data_obj = {
                     "artist": artist,
                     "album": album,
                     "genre": genre,
@@ -232,14 +344,68 @@ with sync_playwright() as p:
                 }
                 try:
                     s3_client.put_object(
-                        Body=json.dumps(album_dict).encode("utf-8"),
+                        Body=json.dumps(album_data_obj).encode("utf-8"),
                         Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
                         Key=os.path.join("album_data", album_data_filename)
                     )
-                    logger.info("%s's %s album data successfully processed!", artist, album)
+                    logger.info("%s's %s album data successfully processed to general purpose bucket!", artist, album)
                 except Exception as e_inner:
-                    logger.error("%s's %s had an issue with uploading album data.", artist, album)
+                    logger.error("%s's %s had an issue with uploading album data to general purpose bucket.", artist, album)
                     logger.error("%s", repr(e_inner))
+                    failed_albums.add((artist, album))
+
+            if album_data_obj:
+                try:
+                    album_data_exists = pyiceberg_record_exists(
+                        fantaino_album_data_table,
+                        artist_name=artist,
+                        album_name=album
+                    )
+                    if not album_data_exists:
+                        spotify_data = get_spotify_album(artist, album)
+                        output = (
+                            total_tracks,
+                            num_available_markets,
+                            release_year,
+                            release_month,
+                            release_day,
+                            album_duration_in_s,
+                            explicit_proportion,
+                            featured_artists,
+                            num_features,
+                            track_names,
+                            artist_popularity,
+                        ) = process_spotify_album_data(spotify_data)
+
+                        album_data = [
+                            artist,
+                            album,
+                            album_data_obj["genre"],
+                            album_data_obj["rating"],
+                            total_tracks,
+                            num_available_markets,
+                            release_year,
+                            release_month,
+                            release_day,
+                            album_duration_in_s,
+                            explicit_proportion,
+                            featured_artists,
+                            num_features,
+                            track_names,
+                            artist_popularity,
+                        ]
+                    
+                        pyiceberg_insert_album_data_record(
+                            pyiceberg_table=fantaino_album_data_table,
+                            album_data=album_data,
+                            album_data_schema=create_s3_album_data_schema()
+                        )
+                    else:
+                        logger.info("%s's %s album data already exists.", artist, album)
+                    logger.info("%s's %s album data successfully processed to S3Table bucket!", artist, album)
+                except Exception as e:
+                    logger.error("%s's %s had an issue with uploading album data to S3Table bucket.", artist, album)
+                    logger.error("%s", repr(e))
                     failed_albums.add((artist, album))
             
             if (album_art_s3_exists and lyrics_s3_exists and album_data_s3_exists):

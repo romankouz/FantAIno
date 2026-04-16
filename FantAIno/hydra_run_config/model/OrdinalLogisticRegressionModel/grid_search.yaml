@@ -3,5 +3,5 @@ threshold_type: all
 param_grid:
     alpha: [0.0, 0.01, 0.1, 1.0]
 scoring_method: accuracy
-model_run_name: base
+model_run_name: grid_search
 n_jobs: 4

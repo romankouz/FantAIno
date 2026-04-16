@@ -5,5 +5,5 @@ param_grid:
     weights: ["uniform", "distance"]
     p: [1, 2]
 scoring_method: neg_mean_squared_error
-model_run_name: grid
+model_run_name: grid_search
 n_jobs: 4

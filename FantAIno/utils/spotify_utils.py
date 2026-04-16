@@ -97,10 +97,10 @@ def get_spotify_artist_popularity(artist_name: str):
         return spotify_popularity
 
 def get_spotify_artist(artist_name: str):
-
+    """Given artist name, returns the artist profile as assumed by Spotify."""
     cleaned_artist_name = clean_name(artist_name)
     results = _spotify.search(q=f'artist:{cleaned_artist_name}', type='artist', market=None)
-    artist_items = results['artists']['items'] 
+    artist_items = results['artists']['items']
     for artist in artist_items:
         if artist['name'].lower() == cleaned_artist_name.lower():
             return artist
@@ -205,18 +205,25 @@ def process_spotify_album_data(album_dict: dict[str, dict]) -> tuple[Any, ...]:
         match album_dict['album']['release_date_precision']:
             case "day":
                 release_year, release_month, release_day = album_dict['album']['release_date'].split('-')
+                release_day = int(release_day)
+                release_month = int(release_month)
+                release_year = int(release_year)
             case "month":
                 release_day = None
                 release_year, release_month = album_dict['album']['release_date'].split('-')
+                release_month = int(release_month)
+                release_year = int(release_year)
             case "year":
                 release_day, release_month = None, None
                 release_year = album_dict['album']['release_date']
+                release_year = int(release_year)
         album_duration_in_s = sum([track.get('duration_ms', 0) for track in album_dict['tracks']]) / 1000
         explicit_proportion = np.mean([track.get('explicit') for track in album_dict['tracks']]).item()
         featured_artists = get_album_features(album_dict['tracks'])
         num_features = int(len(featured_artists))
         track_names = [track.get('name') for track in album_dict['tracks']]
-        artist_popularity = album_dict["artist_popularity"]
+        raw_artist_popularity = album_dict.get("artist_popularity")
+        artist_popularity = int(raw_artist_popularity) if raw_artist_popularity is not None else None
 
         return (
             total_tracks,

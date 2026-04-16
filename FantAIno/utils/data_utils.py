@@ -1,9 +1,10 @@
 """
 Helper functions for processing any acquired data of Fantano's reviews
 """
-
+from dotenv import load_dotenv
 import numpy as np
 import os
+from openai import OpenAI
 import pandas as pd
 import requests
 import sys
@@ -11,6 +12,9 @@ import sys
 from ast import literal_eval
 from io import BytesIO
 from PIL import Image
+
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def process_scraped_data(scraped_data: list) -> list:
     """
@@ -94,7 +98,7 @@ def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
     # include only genres that have top K pct representation
     num_reviews = melondy_df.shape[0]
     min_count = num_reviews * top_K_pct / 100
-    print(f"Album must have been reviewed at least {min_count} times to be a categorical variable.")
+    print(f"Genre must have been reviewed at least {min_count} times to be a categorical variable.")
 
     filtered_genre_counts_df = genre_counts_df[genre_counts_df["count"] >= min_count].copy(deep=True)
 
@@ -127,5 +131,21 @@ def extract_features(
     else:
         return dataset[feature_set]
 
-def embeddings_from_lyrics_obj(lyric_obj: dict) -> np.ndarray:
-    pass
+def embeddings_from_lyrics_obj(lyric_obj: dict, embeddings_model: str = "text-embedding-3-small") -> list[float]:
+
+    embedding_dims = {
+        "text-embedding-3-small": 1536,
+        "text-embedding-3-large": 3072,
+    }
+
+    assert embeddings_model in embedding_dims.keys(), f"Embedding model {embeddings_model} is not supported. The supported models are {list(embedding_dims.keys())}"
+    album_total_lyrics_embedding = np.zeros((embedding_dims[embeddings_model], ))
+
+    for (track, lyrics) in lyric_obj['tracks'].items():
+        response_embedding = client.embeddings.create(
+            input=lyrics,
+            model=embeddings_model
+        )
+        album_total_lyrics_embedding += response_embedding.data[0].embedding
+
+    return list(album_total_lyrics_embedding / np.linalg.norm(album_total_lyrics_embedding))

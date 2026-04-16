@@ -10,5 +10,5 @@ param_grid:
     bagging_temperature: [0, 0.01, 0.1]
     random_strength: [0, 0.01, 0.1]
 scoring_method: neg_mean_squared_error
-model_run_name: base
+model_run_name: grid_search
 n_jobs: 4
