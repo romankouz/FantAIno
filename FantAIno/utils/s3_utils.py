@@ -66,7 +66,16 @@ def retrieve_s3_table_catalog(catalog_name: str, account_id: str, s3tablebucketn
             "uri": f"https://glue.{region}.amazonaws.com/iceberg",
             "rest.sigv4-enabled": "true",
             "rest.signing-name": "glue",
-            "rest.signing-region": region
+            "rest.signing-region": region,
+            # Tuning commit retries to reduce chance of CommitFailedException
+            "commit.retry.num-retries": "20",                           # more attempts
+            "commit.retry.min-wait-ms": "500",                         # longer min wait between retries
+            "commit.retry.max-wait-ms": "120000",                      # 2m max wait per retry
+            "commit.retry.total-timeout-ms": "3600000",                # 1hr total retry window
+            "commit.status-check.num-retries": "10",                   # more status check attempts
+            "commit.status-check.min-wait-ms": "2000",                 # longer min wait for status
+            "commit.status-check.max-wait-ms": "120000",               # 2m max wait per status check
+            "commit.status-check.total-timeout-ms": "3600000",         # 1hr status check window
         }
     )
 

@@ -116,7 +116,7 @@ def scraper(page):
                 (
                     data["artist"],
                     data["album"],
-                    str(data["genre"]),
+                    data["genre"],
                     data["image"],
                     data["rating"],
                 )
@@ -152,7 +152,7 @@ with sync_playwright() as p:
     if not fantaino_lyrics_embeddings_catalog.table_exists(f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"):
         fantaino_lyrics_embeddings_catalog.create_table(
             identifier=f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small",
-            schema=lyrics_embeddings_small_schema
+            schema=lyrics_embeddings_small_schema,
         )
     fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
         f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
