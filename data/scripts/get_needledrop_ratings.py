@@ -1,3 +1,4 @@
+from ast import literal_eval
 import boto3
 from dotenv import load_dotenv
 import json
@@ -21,6 +22,8 @@ from FantAIno.utils.s3_utils import (
     pyiceberg_insert_album_data_record
 )
 from FantAIno.utils.logging import create_logger
+
+from pyiceberg.exceptions import CommitFailedException
 
 load_dotenv()
 
@@ -116,7 +119,7 @@ def scraper(page):
                 (
                     data["artist"],
                     data["album"],
-                    data["genre"],
+                    str(data["genre"]),
                     data["image"],
                     data["rating"],
                 )
@@ -126,6 +129,7 @@ def scraper(page):
         return snapshot_album_data
 
     except Exception as e:
+        logger.error("Scraper failed: %s", repr(e))
         return set()
 
 with sync_playwright() as p:
@@ -279,38 +283,72 @@ with sync_playwright() as p:
             if lyrics_obj:
                 try:
 
+                    # needed for retry and avoiding CommitFailedException
+                    fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
+                        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+                    )
+
                     album_embeddings_small_exists = pyiceberg_record_exists(
-                        fantaino_lyrics_embeddings_small_table,
+                        pyiceberg_table=fantaino_lyrics_embeddings_small_table,
                         artist_name=artist,
                         album_name=album
                     )
 
                     if not album_embeddings_small_exists:
                         album_lyrics_embeddings_small = embeddings_from_lyrics_obj(lyrics_obj, embeddings_model="text-embedding-3-small")
-                        pyiceberg_insert_embeddings_record(
-                            pyiceberg_table=fantaino_lyrics_embeddings_small_table,
-                            artist_name=artist,
-                            album_name=album,
-                            embeddings=album_lyrics_embeddings_small,
-                            embeddings_schema=lyrics_embeddings_small_schema
-                        )
+                        try:
+                            pyiceberg_insert_embeddings_record(
+                                pyiceberg_table=fantaino_lyrics_embeddings_small_table,
+                                artist_name=artist,
+                                album_name=album,
+                                embeddings=album_lyrics_embeddings_small,
+                                embeddings_schema=lyrics_embeddings_small_schema
+                            )
+                        except CommitFailedException:
+                            fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
+                                f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+                            )
+                            pyiceberg_insert_embeddings_record(
+                                pyiceberg_table=fantaino_lyrics_embeddings_small_table,
+                                artist_name=artist,
+                                album_name=album,
+                                embeddings=album_lyrics_embeddings_small,
+                                embeddings_schema=lyrics_embeddings_small_schema
+                            )
                     else:
                         logger.info("%s's %s album lyrics embeddings (small) already exists.", artist, album)
                     
+                    # needed for retry and avoiding CommitFailedException
+                    fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
+                        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+                    )
+                    
                     album_embeddings_large_exists = pyiceberg_record_exists(
-                        fantaino_lyrics_embeddings_large_table,
+                        pyiceberg_table=fantaino_lyrics_embeddings_large_table,
                         artist_name=artist,
                         album_name=album
                     )
                     if not album_embeddings_large_exists:
                         album_lyrics_embeddings_large = embeddings_from_lyrics_obj(lyrics_obj, embeddings_model="text-embedding-3-large")
-                        pyiceberg_insert_embeddings_record(
-                            pyiceberg_table=fantaino_lyrics_embeddings_large_table,
-                            artist_name=artist,
-                            album_name=album,
-                            embeddings=album_lyrics_embeddings_large,
-                            embeddings_schema=lyrics_embeddings_large_schema
-                        )
+                        try:
+                            pyiceberg_insert_embeddings_record(
+                                pyiceberg_table=fantaino_lyrics_embeddings_large_table,
+                                artist_name=artist,
+                                album_name=album,
+                                embeddings=album_lyrics_embeddings_large,
+                                embeddings_schema=lyrics_embeddings_large_schema
+                            )
+                        except CommitFailedException:
+                            fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
+                                f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+                            )
+                            pyiceberg_insert_embeddings_record(
+                                pyiceberg_table=fantaino_lyrics_embeddings_large_table,
+                                artist_name=artist,
+                                album_name=album,
+                                embeddings=album_lyrics_embeddings_large,
+                                embeddings_schema=lyrics_embeddings_large_schema
+                            )
                     else:
                         logger.info("%s's %s album lyrics embeddings (large) already exists.", artist, album)
 
@@ -327,21 +365,20 @@ with sync_playwright() as p:
 
             # check if album data is processed
             album_data_filename = sanitize_filename(f"{artist}___{album}.json")
-            album_data_obj = {}
+            album_data_obj = {
+                "artist": artist,
+                "album": album,
+                "genre": literal_eval(genre),
+                "rating": rating,
+            }
             try:
                 album_data_response = s3_client.get_object(
-                    Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+                    Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
                     Key=os.path.join("album_data", album_data_filename)
                 )
                 album_data_obj = json.load(album_data_response['Body'])
                 album_data_s3_exists = True
             except s3_client.exceptions.NoSuchKey as e:
-                album_data_obj = {
-                    "artist": artist,
-                    "album": album,
-                    "genre": genre,
-                    "rating": rating,
-                }
                 try:
                     s3_client.put_object(
                         Body=json.dumps(album_data_obj).encode("utf-8"),
@@ -356,8 +393,14 @@ with sync_playwright() as p:
 
             if album_data_obj:
                 try:
+
+                    # needed for retry and avoiding CommitFailedException
+                    fantaino_album_data_table = fantaino_album_data_catalog.load_table(
+                        f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+                    )
+
                     album_data_exists = pyiceberg_record_exists(
-                        fantaino_album_data_table,
+                        pyiceberg_table=fantaino_album_data_table,
                         artist_name=artist,
                         album_name=album
                     )
@@ -394,12 +437,21 @@ with sync_playwright() as p:
                             track_names,
                             artist_popularity,
                         ]
-                    
-                        pyiceberg_insert_album_data_record(
-                            pyiceberg_table=fantaino_album_data_table,
-                            album_data=album_data,
-                            album_data_schema=create_s3_album_data_schema()
-                        )
+                        try:
+                            pyiceberg_insert_album_data_record(
+                                pyiceberg_table=fantaino_album_data_table,
+                                album_data=album_data,
+                                album_data_schema=create_s3_album_data_schema()
+                            )
+                        except CommitFailedException:
+                            fantaino_album_data_table = fantaino_album_data_catalog.load_table(
+                                f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+                            )
+                            pyiceberg_insert_album_data_record(
+                                pyiceberg_table=fantaino_album_data_table,
+                                album_data=album_data,
+                                album_data_schema=create_s3_album_data_schema()
+                            )
                     else:
                         logger.info("%s's %s album data already exists.", artist, album)
                     logger.info("%s's %s album data successfully processed to S3Table bucket!", artist, album)
