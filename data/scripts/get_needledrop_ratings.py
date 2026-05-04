@@ -8,7 +8,7 @@ import os
 from playwright.sync_api import sync_playwright
 
 from FantAIno.constants import MELONDY_URL, S3_GENERAL_PURPOSE_BUCKET_NAME
-from FantAIno.utils.data_utils import clean_name, sanitize_filename, embeddings_from_lyrics_obj
+from FantAIno.utils.data_utils import clean_name, sanitize_filename, embeddings_from_lyrics_obj, get_secret
 from FantAIno.utils.genius_utils import get_album_lyrics
 from FantAIno.utils.spotify_utils import get_spotify_album, process_spotify_album_data
 from FantAIno.utils.s3_utils import (
@@ -136,48 +136,48 @@ with sync_playwright() as p:
 
     # handle embeddings catalog
     fantaino_lyrics_embeddings_catalog = retrieve_s3_table_catalog(
-        catalog_name=os.getenv("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
-        account_id=os.getenv("AWS_ACCOUNT_ID"),
-        s3tablebucketname=os.getenv("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
-        region=os.getenv("PYICEBERG_AWS_DEFAULT_REGION"),
+        catalog_name=get_secret("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
+        account_id=get_secret("AWS_ACCOUNT_ID"),
+        s3tablebucketname=get_secret("S3_EMBEDDINGS_TABLE_BUCKET_NAME"),
+        region=get_secret("PYICEBERG_AWS_DEFAULT_REGION"),
     )
 
     # handle album data catalog
     fantaino_album_data_catalog = retrieve_s3_table_catalog(
-        catalog_name=os.getenv("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
-        account_id=os.getenv("AWS_ACCOUNT_ID"),
-        s3tablebucketname=os.getenv("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
-        region=os.getenv("PYICEBERG_AWS_DEFAULT_REGION"),
+        catalog_name=get_secret("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
+        account_id=get_secret("AWS_ACCOUNT_ID"),
+        s3tablebucketname=get_secret("S3_ALBUM_DATA_TABLE_BUCKET_NAME"),
+        region=get_secret("PYICEBERG_AWS_DEFAULT_REGION"),
     )
 
     # create lyrics embeddings tables if they don't exist
     lyrics_embeddings_small_schema = create_s3_embeddings_schema(embeddings_dim=1536)
     lyrics_embeddings_large_schema = create_s3_embeddings_schema(embeddings_dim=3072)
-    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"):
+    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"):
         fantaino_lyrics_embeddings_catalog.create_table(
-            identifier=f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small",
+            identifier=f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small",
             schema=lyrics_embeddings_small_schema,
         )
     fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
-        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+        f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
     )
-    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"):
+    if not fantaino_lyrics_embeddings_catalog.table_exists(f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"):
         fantaino_lyrics_embeddings_catalog.create_table(
-            identifier=f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large",
+            identifier=f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large",
             schema=lyrics_embeddings_large_schema
         )
     fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
-        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+        f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
     )
 
     # create album data table if it does not exist
-    if not fantaino_album_data_catalog.table_exists(f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"):
+    if not fantaino_album_data_catalog.table_exists(f"{get_secret("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"):
         fantaino_album_data_catalog.create_table(
-            identifier=f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data",
+            identifier=f"{get_secret("S3_ALBUM_DATA_DATABASE_NAME")}.album_data",
             schema=create_s3_album_data_schema()
         )
     fantaino_album_data_table = fantaino_album_data_catalog.load_table(
-        f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+        f"{get_secret("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
     )
 
     # load our s3 client to check if album is processed or not
@@ -285,7 +285,7 @@ with sync_playwright() as p:
 
                     # needed for retry and avoiding CommitFailedException
                     fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
-                        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+                        f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
                     )
 
                     album_embeddings_small_exists = pyiceberg_record_exists(
@@ -306,7 +306,7 @@ with sync_playwright() as p:
                             )
                         except CommitFailedException:
                             fantaino_lyrics_embeddings_small_table = fantaino_lyrics_embeddings_catalog.load_table(
-                                f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
+                                f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_small"
                             )
                             pyiceberg_insert_embeddings_record(
                                 pyiceberg_table=fantaino_lyrics_embeddings_small_table,
@@ -320,7 +320,7 @@ with sync_playwright() as p:
                     
                     # needed for retry and avoiding CommitFailedException
                     fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
-                        f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+                        f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
                     )
                     
                     album_embeddings_large_exists = pyiceberg_record_exists(
@@ -340,7 +340,7 @@ with sync_playwright() as p:
                             )
                         except CommitFailedException:
                             fantaino_lyrics_embeddings_large_table = fantaino_lyrics_embeddings_catalog.load_table(
-                                f"{os.getenv("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
+                                f"{get_secret("S3_EMBEDDINGS_DATABASE_NAME")}.lyrics_embeddings_large"
                             )
                             pyiceberg_insert_embeddings_record(
                                 pyiceberg_table=fantaino_lyrics_embeddings_large_table,
@@ -396,7 +396,7 @@ with sync_playwright() as p:
 
                     # needed for retry and avoiding CommitFailedException
                     fantaino_album_data_table = fantaino_album_data_catalog.load_table(
-                        f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+                        f"{get_secret("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
                     )
 
                     album_data_exists = pyiceberg_record_exists(
@@ -445,7 +445,7 @@ with sync_playwright() as p:
                             )
                         except CommitFailedException:
                             fantaino_album_data_table = fantaino_album_data_catalog.load_table(
-                                f"{os.getenv("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
+                                f"{get_secret("S3_ALBUM_DATA_DATABASE_NAME")}.album_data"
                             )
                             pyiceberg_insert_album_data_record(
                                 pyiceberg_table=fantaino_album_data_table,

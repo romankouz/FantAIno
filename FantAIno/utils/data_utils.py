@@ -7,14 +7,18 @@ import os
 from openai import OpenAI
 import pandas as pd
 import requests
+import streamlit as st
 import sys
 
 from ast import literal_eval
 from io import BytesIO
 from PIL import Image
 
+def get_secret(key: str):
+    return os.getenv(key) or st.secrets.get(key)
+
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=get_secret("OPENAI_API_KEY"))
 
 def process_scraped_data(scraped_data: list) -> list:
     """

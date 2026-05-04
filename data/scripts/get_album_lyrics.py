@@ -8,6 +8,8 @@ import pandas as pd
 
 from lyricsgenius import Genius
 
+from FantAIno.utils.data_utils import get_secret
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(levelname)s %(name)s: %(message)s",
@@ -18,7 +20,7 @@ logging.getLogger("lyricsgenius").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='extract_lyrics.log', encoding='utf-8', level=logging.DEBUG)
 
-GENIUS_TOKEN = os.getenv("GENIUS_CLIENT_ACCESS_TOKEN")
+GENIUS_TOKEN = get_secret("GENIUS_CLIENT_ACCESS_TOKEN")
 genius = Genius(GENIUS_TOKEN)
 
 if not os.path.isfile("lyrics.jsonl"):

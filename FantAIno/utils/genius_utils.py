@@ -8,9 +8,10 @@ import pandas as pd
 
 from lyricsgenius import Genius
 
+from FantAIno.utils.data_utils import get_secret
 from FantAIno.utils.logging import create_logger
 
-GENIUS_TOKEN = os.getenv("GENIUS_CLIENT_ACCESS_TOKEN")
+GENIUS_TOKEN = get_secret("GENIUS_CLIENT_ACCESS_TOKEN")
 genius = Genius(GENIUS_TOKEN)
 logger = create_logger("genius_utils", "extract_lyrics.log", logging.DEBUG)
 

@@ -4,6 +4,8 @@ import warnings
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from FantAIno.utils.data_utils import get_secret
+
 def extract_fantano_rating(html: str, max_length: int = 1000) -> str:
 
     if len(html) > max_length:
@@ -12,7 +14,7 @@ def extract_fantano_rating(html: str, max_length: int = 1000) -> str:
 
     load_dotenv()
 
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = OpenAI(api_key=get_secret("OPENAI_API_KEY"))
     script_dir = os.path.dirname(os.path.abspath(__file__))
     instructions_file_path = os.path.join(script_dir, "instructions", "fantano_website_db_maker.txt")
 
