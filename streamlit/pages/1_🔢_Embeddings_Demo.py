@@ -97,6 +97,7 @@ with col2:
 
     st.markdown(
         '''
+
         To avoid 403 errors from the Genius API fetching lyrics for this demo, we will just load these lyrics from our
         S3 bucket to which we uploaded these lyrics already.
         '''
@@ -107,8 +108,8 @@ with col2:
         artist, album = "Logic", "Under Pressure"
         lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
         lyrics_response = s3_client.get_object(
-            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
-            Key=f"lyrics/{lyrics_filename}"
+            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME,
+            Key=f"lyrics\\{lyrics_filename}"
         )
         logic_under_pressure = json.load(lyrics_response['Body'])
 
