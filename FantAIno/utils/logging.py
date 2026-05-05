@@ -17,6 +17,6 @@ def create_logger(logger_name: str, log_file_name: str, logging_level: int = log
         handler = logging.StreamHandler()
 
     logger.addHandler(handler)
-    logger.propagate = False # perhaps remove?
+    logger.propagate = False # perhaps remove??
     
     return logger
