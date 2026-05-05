@@ -76,9 +76,12 @@ with col2:
         'logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")'
     )
 
-    logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")
+    with st.echo():
 
-    st.write(logic_under_pressure)
+        logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")
+        
+        logic_under_pressure
+
 
     with st.echo():
         under_pressure_embeddings = np.empty((len(logic_under_pressure['tracks']), len(response_small.data[0].embedding)))
