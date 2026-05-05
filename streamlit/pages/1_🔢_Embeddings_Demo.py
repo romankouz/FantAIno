@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+load_dotenv()
 import matplotlib.pyplot as plt
 import numpy as np
 from openai import OpenAI
@@ -6,7 +7,6 @@ import streamlit as st
 
 from FantAIno.utils.genius_utils import get_album_lyrics
 
-load_dotenv()
 client = OpenAI()
 
 st.set_page_config(layout="wide")
@@ -72,14 +72,10 @@ with col2:
         '''
     )
 
-    st.code(
-        'logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")'
-    )
-
     with st.echo():
 
         logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")
-        
+
         logic_under_pressure
 
 
