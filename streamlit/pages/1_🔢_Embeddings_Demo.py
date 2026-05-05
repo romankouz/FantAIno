@@ -113,7 +113,8 @@ with col2:
         )
         logic_under_pressure = json.load(lyrics_response['Body'])
 
-        logic_under_pressure
+    with st.expander("Show Logic 'Under Pressure' Lyrics JSON", expanded=False):
+        st.write(logic_under_pressure)
 
     st.markdown(
         '''
@@ -185,7 +186,7 @@ with col2:
         6 years prior. The next album will be Madonna's "Ray of Light", which to my knowledge is 
         fairly different from Logic's music.
 
-        I hypothesize that the cosine similarity between the 2 Logic albums will be much higher than
+        I hypothesize that the cosine similarity between the two Logic albums will be much higher than
         the cosine similarity between Under Pressure and Ray of Light. This would provide some 
         initial evidence that the lyrics embeddings are capturing relevant lyrical signal
         to use as predictors for our FantAIno models.
@@ -268,7 +269,8 @@ with col2:
 
     st.markdown(
         '''
-        As expected, Logic's own album has a MUCH higher cosine similarity. However, because both 
+        As expected, Logic's "No Pressure" has a MUCH higher cosine similarity with "Under Pressure" than "Ray of Light" had with "Under Pressure".
+        However, because both 
         lyrics from Logic and Madonna are generally associated with something musical, there is likely 
         some overlap with 
         just music in general between the two. Even still, this is still indicative that there is 
