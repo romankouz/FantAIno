@@ -10,14 +10,16 @@ def create_logger(logger_name: str, log_file_name: str, logging_level: int = log
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging_level)
 
-    is_cloud = "OPENAI_API_KEY" in st.secrets
+    if not logger.handlers:
 
-    if not is_cloud and log_file_name:
-        handler = logging.FileHandler(os.path.join(LOGS_DIR, log_file_name), encoding='utf-8')
-    else:
-        handler = logging.StreamHandler()
+        is_cloud = "OPENAI_API_KEY" in st.secrets
 
-    logger.addHandler(handler)
-    logger.propagate = False # perhaps remove?
-    
+        if not is_cloud and log_file_name:
+            handler = logging.FileHandler(os.path.join(LOGS_DIR, log_file_name), encoding='utf-8')
+        else:
+            handler = logging.StreamHandler()
+
+        logger.addHandler(handler)
+        logger.propagate = False # perhaps remove?
+
     return logger
