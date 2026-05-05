@@ -12,8 +12,9 @@ from FantAIno.utils.data_utils import get_secret
 from FantAIno.utils.logging import create_logger
 
 GENIUS_TOKEN = get_secret("GENIUS_CLIENT_ACCESS_TOKEN")
+IS_STREAMLIT_CLOUD = get_secret("IS_STREAMLIT_CLOUD")
 genius = Genius(GENIUS_TOKEN)
-logger = create_logger("genius_utils", "extract_lyrics.log", logging.DEBUG)
+logger = create_logger("genius_utils", "extract_lyrics.log", logging.DEBUG, is_streamlit_cloud=IS_STREAMLIT_CLOUD)
 
 def get_album_lyrics(artist_name: str, album_name: str) -> dict | None:
     # get album
