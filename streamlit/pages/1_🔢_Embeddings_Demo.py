@@ -198,7 +198,7 @@ with col2:
         lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
         lyrics_response = s3_client.get_object(
             Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
-            Key=os.path.join("lyrics", lyrics_filename)
+            Key=f"lyrics\\{lyrics_filename}"
         )
         logic_no_pressure = json.load(lyrics_response['Body'])
 
@@ -206,7 +206,7 @@ with col2:
         lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
         lyrics_response = s3_client.get_object(
             Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
-            Key=os.path.join("lyrics", lyrics_filename)
+            Key=f"lyrics\\{lyrics_filename}"
         )
         madonna_ray_of_light = json.load(lyrics_response['Body'])
    
