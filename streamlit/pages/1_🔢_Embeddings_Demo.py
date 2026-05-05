@@ -1,13 +1,19 @@
+import boto3
 from dotenv import load_dotenv
 load_dotenv()
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 from openai import OpenAI
+import os
 import streamlit as st
 
+from FantAIno.constants import S3_GENERAL_PURPOSE_BUCKET_NAME
 from FantAIno.utils.genius_utils import get_album_lyrics
+from FantAIno.utils.data_utils import sanitize_filename
 
 client = OpenAI()
+s3_client = boto3.client("s3")
 
 st.set_page_config(layout="wide")
 
@@ -17,8 +23,21 @@ with col2:
 
     st.write("# Album Embeddings Demo")
 
-    st.write(
+    st.markdown(
+        """
+        
+        <div style="border-left: 4px solid #f59e0b; padding-left: 10px;">
+            ⚠️❗ This demo computes values on the fly. Therefore, it may load in chunks. Please allow a few seconds for the full page to load.
+        </div>
+        <br>
+        
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
         '''
+
         This demo indicates how we manage to capture the lyrics of an album
         and have them be a usable predictor for our FantAIno models.
         '''
@@ -72,12 +91,35 @@ with col2:
         '''
     )
 
+    st.code(
+        'logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")'
+    )
+
+    st.markdown(
+        '''
+        To avoid 403 errors from the Genius API fetching lyrics for this demo, we will just load these lyrics from our
+        S3 bucket to which we uploaded these lyrics already.
+        '''
+    )
+
     with st.echo():
 
-        logic_under_pressure = get_album_lyrics("Logic", "Under Pressure")
+        artist, album = "Logic", "Under Pressure"
+        lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
+        lyrics_response = s3_client.get_object(
+            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+            Key=os.path.join("lyrics", lyrics_filename)
+        )
+        logic_under_pressure = json.load(lyrics_response['Body'])
 
         logic_under_pressure
 
+    st.markdown(
+        '''
+        Having retrieved the lyrics, we can now iterate throught the lyrics of each song and get the embeddings for each song.
+        We store each embedding in a row of a numpy array (matrix).
+        '''
+    )
 
     with st.echo():
         under_pressure_embeddings = np.empty((len(logic_under_pressure['tracks']), len(response_small.data[0].embedding)))
@@ -151,8 +193,22 @@ with col2:
 
     with st.echo():
 
-        logic_no_pressure = get_album_lyrics("Logic", "No Pressure")
-        madonna_ray_of_light = get_album_lyrics("Madonna", "Ray of Light")
+        artist, album = "Logic", "No Pressure"
+        lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
+        lyrics_response = s3_client.get_object(
+            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+            Key=os.path.join("lyrics", lyrics_filename)
+        )
+        logic_no_pressure = json.load(lyrics_response['Body'])
+
+        artist, album = "Madonna", "Ray of Light"
+        lyrics_filename = sanitize_filename(f"{artist}___{album}.jsonl")
+        lyrics_response = s3_client.get_object(
+            Bucket=S3_GENERAL_PURPOSE_BUCKET_NAME, 
+            Key=os.path.join("lyrics", lyrics_filename)
+        )
+        madonna_ray_of_light = json.load(lyrics_response['Body'])
+   
 
         no_pressure_embeddings = np.empty((len(logic_no_pressure['tracks']), len(response_small.data[0].embedding)))
 
