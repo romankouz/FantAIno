@@ -107,10 +107,10 @@ MELONDY_TO_SPOTIFY={
     }
 }
 S3_GENERAL_PURPOSE_BUCKET_NAME = "fantaino-bucket-085777795487-us-east-2-an"
-S3_ALBUM_DATA_TABLE_BUCKET_NAME="fantaino-album-data"
-S3_EMBEDDINGS_TABLE_BUCKET_NAME="fantaino-lyrics-embeddings"
-S3_EMBEDDINGS_DATABASE_NAME="fantaino_lyrics_embeddings"
-S3_ALBUM_DATA_DATABASE_NAME="fantaino_album_data"
+S3_ALBUM_DATA_TABLE_BUCKET_NAME = "fantaino-album-data"
+S3_EMBEDDINGS_TABLE_BUCKET_NAME = "fantaino-lyrics-embeddings"
+S3_EMBEDDINGS_DATABASE_NAME = "fantaino_lyrics_embeddings"
+S3_ALBUM_DATA_DATABASE_NAME = "fantaino_album_data"
 S3_SMALL_EMBEDDINGS_TABLE = "lyrics_embeddings_small"
 S3_LARGE_EMBEDDINGS_TABLE = "lyrics_embeddings_large"
 S3_ALBUM_DATA_TABLE = "album_data"
