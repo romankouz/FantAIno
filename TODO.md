@@ -1,9 +1,9 @@
 # Data
 
 [ ] When you collect an album, get ALL the artists that were main artists in the dataset. Ex: Silk Sonic will put Anderson Paak as a featuring artist instead of a lead author. Perhaps make a second column called, artist_2 or something.
-[ ] Convert spotify_etl to functions.
 [ ] We currently have a data input pipeline for S3 that scrapes Melondy based on the most recent reviews. We should also have a pipeline for updating individual albums. Use Case: Album isn't found due to a weird name mismatch and we want to correct for that.
 [ ] Write a flag that stops the scraper if it runs to an album it has processed before. This in tandem with the individual album update should help us have near 100% coverage of Fantano's album reviews.
+[ ] Vision Transformer Embedding Support
 
 # Models
 
@@ -16,16 +16,12 @@
 
 # Runtime Enhancements
 
-[ ] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
-
 # Code Cleanliness
 
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
 [ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
-[ ] Create a logger for spotify in it's utils. It currently prints out when something wasn't retrievable by spotify.
 [ ] Ensure method strings have new lines.
 [ ] Make underscores for the relevant helper methods.
-[ ] Ensure better logging than "print", especially in scratch. Save the print to log files to examine later.
 [ ] Introduce bidict for MELONDY_TO_SPOTIFY usage.
 [ ] Reorder imports.
     Standard library first
@@ -56,6 +52,10 @@
 [x] Edit linter to be less picky about line length and snake case.
 [x] Ordinal Logistic Regression
 [x] Create tabular database in AWS for album lyrics embeddings.
+[x] Convert spotify_etl to functions.
+[x] Ensure better logging than "print", especially in scratch. Save the print to log files to examine later.
+[x] Create a logger for spotify in it's utils. It currently prints out when something wasn't retrievable by spotify.
+[x] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
 
 
 

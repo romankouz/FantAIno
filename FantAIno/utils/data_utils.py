@@ -20,6 +20,9 @@ def get_secret(key: str):
 load_dotenv()
 client = OpenAI(api_key=get_secret("OPENAI_API_KEY"))
 
+def convert_to_list(x):
+    return list(x) if x is not None else None
+
 def process_scraped_data(scraped_data: list) -> list:
     """
         An archived function that helped process album reviews straight from theneedledrop.com.
@@ -83,7 +86,7 @@ def clean_name(name: str):
     name = name.replace("'", "") # remove any single quotes because spotify uses fuzzy search and we don't want to URL encode unnecessarily
     return name
 
-def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
+def process_melondy_genre(melondy_df: pd.DataFrame, genre_column_name: str = "genre_list",top_K_pct: float = 1.0):
     """
     Takes the raw melondy data extraction and creates genre dummies.
     Keeps only the top_K_pct of represented genres in the pool.
@@ -91,7 +94,8 @@ def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
 
     # get the genre counts
     genre_counts = {}
-    for genre_list in melondy_df["genre"]:
+    for genre_list in melondy_df[genre_column_name]:
+        print(genre_list, type(genre_list))
         for genre in literal_eval(genre_list):
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
@@ -108,8 +112,8 @@ def process_melondy_genre(melondy_df: pd.DataFrame, top_K_pct: float = 1.0):
 
     # create the categorical features
     for genre in filtered_genre_counts_df.index:
-        melondy_df[f"is_{genre}"] = melondy_df["genre"].apply(lambda x: genre in literal_eval(x))
-    melondy_df.drop(["genre"], axis=1, inplace=True)
+        melondy_df[f"is_{genre}"] = melondy_df[genre_column_name].apply(lambda x: genre in literal_eval(x))
+    melondy_df.drop([genre_column_name], axis=1, inplace=True)
 
     return melondy_df
 

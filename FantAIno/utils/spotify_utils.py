@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import os
 import spotipy
@@ -8,9 +9,15 @@ from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from FantAIno.constants import MELONDY_TO_SPOTIFY
-from FantAIno.utils.data_utils import clean_name
+from FantAIno.utils.data_utils import clean_name, get_secret
+from FantAIno.utils.logging import create_logger
+
 
 load_dotenv()
+IS_STREAMLIT_CLOUD = get_secret("IS_STREAMLIT_CLOUD")
+
+logger = create_logger("spotify_utils", "spotipy.log", logging.DEBUG, is_streamlit_cloud=IS_STREAMLIT_CLOUD)
+
 
 _spotify = spotipy.Spotify(
     auth_manager=SpotifyClientCredentials(),
@@ -171,13 +178,13 @@ def get_spotify_album(artist_name: str, album_name: str) -> dict[str, Any]:
         found_album_data["artist_popularity"] = artist_popularity
         return found_album_data
 
-    print(f'Album "{cleaned_album_name}" by {cleaned_artist_name} was not retrievable via Spotipy\'s API.')
+    logger.warning(f'Album "{cleaned_album_name}" by {cleaned_artist_name} was not retrievable via Spotipy\'s API.')
     try:
-        print(f'Here is what returned for the names of album_items: {[album["name"] for album in album_items]}')
+        logger.debug(f'Here is what returned for the names of album_items: {[album["name"] for album in album_items]}')
     except KeyError:
-        print(f'Here is what returned for the names of album_items: {album_items}')
+        logger.error(f'Here is what returned for the names of album_items: {album_items}')
     except Exception as e:
-        print(f'An unexpected error occurred: {e}')
+        logger.error(f'An unexpected error occurred: {e}')
     return {}
 
 def process_spotify_album_data(album_dict: dict[str, dict]) -> tuple[Any, ...]:
