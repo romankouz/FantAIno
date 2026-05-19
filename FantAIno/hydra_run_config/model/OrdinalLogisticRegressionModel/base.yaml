@@ -1,4 +1,4 @@
-_target_: FantAIno.models.ordinal_logistic_regressor.OrdinalLogisticRegressionModel
+_target_: FantAIno.models.ordinal_logistic_regressor.OrdinalLogisticModel
 threshold_type: all
 param_grid: null
 scoring_method: accuracy

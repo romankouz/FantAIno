@@ -1,4 +1,4 @@
-_target_: FantAIno.models.ordinal_logistic_regressor.OrdinalLogisticRegressionModel
+_target_: FantAIno.models.ordinal_logistic_regressor.OrdinalLogisticModel
 threshold_type: all
 param_grid:
     alpha: [0.0, 0.01, 0.1, 1.0]

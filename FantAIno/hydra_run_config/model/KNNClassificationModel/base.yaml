@@ -1,4 +1,5 @@
-_target_: FantAIno.models.knn_classifier.KNNClassificationModel
+_target_: FantAIno.models.knn.KNNModel
+mode: classification
 n_neighbors: 5
 param_grid: null
 scoring_method: accuracy

@@ -1,0 +1,5 @@
+_target_: FantAIno.data.melondy_classic.MelondyClassicDataset
+split: ${mode}
+data_type: numpy
+drop_cols:
+openai_embedding_size: small

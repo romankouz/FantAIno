@@ -23,6 +23,29 @@ client = OpenAI(api_key=get_secret("OPENAI_API_KEY"))
 def convert_to_list(x):
     return list(x) if x is not None else None
 
+def get_numerical_rating(rating: str) -> int:
+    """
+        Convert's Fantano's English ratings to numerical ones.
+
+        - Classic: 10
+        - Not good: -1
+        - Otherwise, return the numerical rating.
+        - If the rating is not convertible, just return -2.
+    """
+    if rating.lower() == "classic":
+        return 10
+    elif rating.lower() == "not good":
+        return -1
+    else:
+        try:
+            rating = int(rating)
+            if rating < 0 or rating > 10:
+                return -2
+            else:
+                return rating
+        except ValueError:
+            return -2
+
 def process_scraped_data(scraped_data: list) -> list:
     """
         An archived function that helped process album reviews straight from theneedledrop.com.

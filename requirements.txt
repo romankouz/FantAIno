@@ -25,6 +25,7 @@ scikit-learn==1.8.0
 spotipy
 streamlit==1.55.0
 tabulate
+tensorflow>=2.21.0
 transformers
 wandb==0.25.1
 

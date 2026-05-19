@@ -18,7 +18,7 @@ from FantAIno.constants import (
     S3_LARGE_EMBEDDINGS_TABLE,
     S3_ALBUM_DATA_TABLE,
 )
-from FantAIno.utils.data_utils import clean_name, sanitize_filename, embeddings_from_lyrics_obj, get_secret
+from FantAIno.utils.data_utils import clean_name, sanitize_filename, embeddings_from_lyrics_obj, get_secret, get_numerical_rating
 from FantAIno.utils.genius_utils import get_album_lyrics
 from FantAIno.utils.spotify_utils import get_spotify_album, process_spotify_album_data
 from FantAIno.utils.s3_utils import (
@@ -38,25 +38,6 @@ from FantAIno.utils.logging import create_logger
 from pyiceberg.exceptions import CommitFailedException
 
 load_dotenv()
-
-def get_numerical_rating(rating: str) -> int:
-    """
-        Convert's Fantano's English ratings to numerical ones.
-
-        - Classic: 10
-        - Not good: -1
-        - Otherwise, return the numerical rating.
-        - If the rating is not convertible, just return -2.
-    """
-    if rating.lower() == "classic":
-        return 10
-    elif rating.lower() == "not good":
-        return -1
-    else:
-        try:
-            return int(rating)
-        except ValueError:
-            return -2
 
 def scraper(page):
     """

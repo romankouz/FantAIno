@@ -1,4 +1,5 @@
-_target_: FantAIno.models.neighborhood_components_regressor.NeighborhoodComponentsRegressionModel
+_target_: FantAIno.models.neighborhood_components.NeighborhoodComponentsModel
+mode: regression
 n_neighbors: 5
 nca_components: 5
 param_grid: 

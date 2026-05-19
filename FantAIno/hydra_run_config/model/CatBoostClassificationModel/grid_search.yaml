@@ -1,4 +1,5 @@
-_target_: FantAIno.models.catboost_classifier.CatBoostClassificationModel
+_target_: FantAIno.models.catboost_classifier.CatBoostModel
+mode: classification
 iterations: 100
 depth: 3
 loss_fn: MultiClass

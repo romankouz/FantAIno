@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - dataset:
+  - dataset: melondy_classic
   - preprocessing: 
   - model: CatBoostRegressionModel/base
   - optimizer: null

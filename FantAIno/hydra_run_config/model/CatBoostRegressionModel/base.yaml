@@ -1,4 +1,5 @@
-_target_: FantAIno.models.catboost_regressor.CatBoostRegressionModel
+_target_: FantAIno.models.catboost_classifier.CatBoostModel
+mode: regression
 iterations: 100
 depth: 3
 loss_fn: RMSE

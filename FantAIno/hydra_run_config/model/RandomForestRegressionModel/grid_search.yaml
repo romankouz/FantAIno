@@ -1,4 +1,5 @@
-_target_: FantAIno.models.random_forest_regressor.RandomForestRegressionModel
+_target_: FantAIno.models.random_forest.RandomForestModel
+mode: regression
 n_estimators: 100
 param_grid: 
     n_estimators: [100, 250, 500, 1000]

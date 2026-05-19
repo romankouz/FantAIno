@@ -1,4 +1,5 @@
-_target_: FantAIno.models.radius_neighbors_classifier.RadiusNeighborsClassificationModel
+_target_: FantAIno.models.radius_neighbors_classifier.RadiusNeighborsModel
+mode: classification
 radius: 5
 param_grid: 
     radius: [2, 5, 10, 25]

@@ -18,11 +18,13 @@
 
 # Code Cleanliness
 
+[ ] Merge existing classes to handle classification or regression in the same file. Take "regression" or "classification" as the task and edit the appropriate parameters accordingly.
+[ ] Train and test of various models likely doesn't take pd.DataFrames but the type hints don't reflect that. Fix it.
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
 [ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
 [ ] Ensure method strings have new lines.
 [ ] Make underscores for the relevant helper methods.
-[ ] Introduce bidict for MELONDY_TO_SPOTIFY usage.
+[ ] Introduce bidict for MELONDY_TO_SPOTIFY usage. Use bidict for spotify validation in ingestion pipeline.
 [ ] Reorder imports.
     Standard library first
     fnmatch, json, os, collections, urllib.parse

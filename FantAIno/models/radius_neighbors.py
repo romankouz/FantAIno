@@ -1,19 +1,20 @@
 import pandas as pd
 
 from sklearn.exceptions import NotFittedError
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neighbors import RadiusNeighborsClassifier, RadiusNeighborsRegressor
 from sklearn.utils.validation import check_is_fitted
 
 from FantAIno.models.fantaino_base import FantAInoFitter
 
-class KNNRegressionModel(FantAInoFitter):
-    """KNN Regressor model for FantAIno."""
+class RadiusNeighborsModel(FantAInoFitter):
+    """Radius Neighbors model for FantAIno."""
 
     def __init__(
         self,
-        n_neighbors: int = 5,
+        mode = "regression",
+        radius: int = 5,
         param_grid: dict = None,
         scoring_method: str = "neg_mean_squared_error",
         model_run_name: str = "master",
@@ -21,17 +22,26 @@ class KNNRegressionModel(FantAInoFitter):
     ):
         super().__init__()
 
+        self.mode = mode
         self.param_grid = param_grid
         self.scoring_method = scoring_method
         self.n_jobs = n_jobs
 
-        self.base_model = KNeighborsRegressor(n_neighbors=n_neighbors, n_jobs=self.n_jobs)
+        match self.mode:
+            case "regression":
+                self.base_model = RadiusNeighborsRegressor(radius=radius, n_jobs=self.n_jobs)
+                self.model_name = "Radius Neighbors Regressor"
+            case "classification":
+                self.base_model = RadiusNeighborsClassifier(radius=radius, n_jobs=self.n_jobs)
+                self.model_name = "Radius Neighbors Classifier"
+            case _:
+                raise ValueError(f"Invalid mode: {self.mode}")
+
         self.model = self.base_model
-        self.model_name = "KNN Regressor"
         self.model_run_name = model_run_name
 
     def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
-
+        
         if self.param_grid:
             self.model = GridSearchCV(
                 estimator=self.base_model,
@@ -50,9 +60,13 @@ class KNNRegressionModel(FantAInoFitter):
             raise NotFittedError("Model must be fitted before predicting.") from exc
         return self.model.predict(X_test)
 
-    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: mean_squared_error) -> float:
+    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: callable = None) -> float:
+        if loss_fn is None:
+            loss_fn = mean_squared_error if self.mode == "regression" else accuracy_score
         try:
             check_is_fitted(self.model)
         except NotFittedError as exc:
             raise NotFittedError("Model must be fitted before prediction and evaluation.") from exc
         return loss_fn(self.predict(X_test), y_test)
+
+
