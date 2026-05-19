@@ -1,0 +1,2 @@
+_target_: FantAIno.models.naive_random.NaiveRandomModel
+model_run_name: base

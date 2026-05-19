@@ -55,7 +55,7 @@ class MelondyClassicDataset(MelondyBaseDataset):
         match data_type:
             case "numpy":
                 self.FantAIno_df_X = self.FantAIno_df_X.to_numpy()
-                self.FantAIno_df_y = self.FantAIno_df_y.to_numpy().reshape(-1, 1)
+                self.FantAIno_df_y = self.FantAIno_df_y.to_numpy()
                 self.FantAIno_index = self.FantAIno_df.index
             case "pytorch":
                 self.FantAIno_df_X = torch.from_numpy(self.FantAIno_df_X.to_numpy())

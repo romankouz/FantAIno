@@ -2,9 +2,9 @@ defaults:
   - _self_
   - dataset: MelondyClassic
   - preprocessing: 
-  - model: CatBoostClassificationModel/base
+  - model: NaiveMajorityModel/base
   - optimizer: null
-  - training: catboost_default
+  - training: sklearn_default
   - prediction: default
 
 mode: train

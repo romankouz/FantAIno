@@ -1,0 +1,2 @@
+_target_: FantAIno.models.naive_majority_class.NaiveMajorityModel
+model_run_name: base

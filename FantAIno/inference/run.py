@@ -15,6 +15,8 @@ def FantAInoRun(cfg: DictConfig) -> None:
         train(cfg=cfg)
     elif cfg.mode == "test":
         predict(cfg=cfg)
+    else:
+        raise ValueError(f"Invalid mode: {cfg.mode}")
 
 if __name__ == "__main__":
     FantAInoRun()

@@ -10,7 +10,7 @@ def train(cfg: DictConfig) -> None:
 
     FantAIno_df_obj = instantiate(cfg.dataset)
 
-    X_train, y_train = FantAIno_df_obj.FantAIno_df_X_train, FantAIno_df_obj.FantAIno_df_y_train
+    X_train, y_train = FantAIno_df_obj.FantAIno_df_X, FantAIno_df_obj.FantAIno_df_y
     
     model = instantiate(cfg.model, _convert_="partial")
     model.train(X_train, y_train)

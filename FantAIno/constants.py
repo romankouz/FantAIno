@@ -114,3 +114,33 @@ S3_ALBUM_DATA_DATABASE_NAME = "fantaino_album_data"
 S3_SMALL_EMBEDDINGS_TABLE = "lyrics_embeddings_small"
 S3_LARGE_EMBEDDINGS_TABLE = "lyrics_embeddings_large"
 S3_ALBUM_DATA_TABLE = "album_data"
+
+REFRESH_RESULTS_HYDRA_SCRIPT_BASE = '''
+python -m FantAIno.inference.run -m ^
+"model=CatBoostClassificationModel/base,^
+CatBoostRegressionModel/base,^
+KNNClassificationModel/base,^
+KNNRegressionModel/base,^
+NCAClassificationModel/base,^
+NCARegressionModel/base,^
+OrdinalLogisticRegressionModel/base,^
+RadiusNeighborsClassificationModel/base,^
+RadiusNeighborsRegressionModel/base,^
+RandomForestClassificationModel/base,^
+RandomForestRegressionModel/base"
+'''
+
+REFRESH_RESULTS_HYDRA_SCRIPT_GRID = '''
+python -m FantAIno.inference.run -m ^
+"model=CatBoostClassificationModel/grid_search,^
+CatBoostRegressionModel/grid_search,^
+KNNClassificationModel/grid_search,^
+KNNRegressionModel/grid_search,^
+NCAClassificationModel/grid_search,^
+NCARegressionModel/grid_search,^
+OrdinalLogisticRegressionModel/grid_search,^
+RadiusNeighborsClassificationModel/grid_search,^
+RadiusNeighborsRegressionModel/grid_search,^
+RandomForestClassificationModel/grid_search,^
+RandomForestRegressionModel/grid_search"
+'''

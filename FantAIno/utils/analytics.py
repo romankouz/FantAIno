@@ -38,60 +38,8 @@ def refresh_results(
     regression_metric = mean_squared_error
 ) -> pd.DataFrame:
 
-    ### TEMPORARY CODE ###
-    import os
-    import pandas as pd
-    from sklearn.model_selection import train_test_split
-    import FantAIno
-
-    # prepare the data
-    root_dir = os.path.dirname(os.path.abspath(FantAIno.__path__[0]))
-    melondy_and_spotify_df = pd.read_csv(os.path.join(root_dir, "data", "processed", "melondy_and_spotify.csv")).dropna()
-
-    DROPPED_FEATURES = [
-        "artist",
-        "album",
-        "image_url",
-        "featured_artists",
-        "track_names",
-    ]
-
-    FantAIno_KNN_response = melondy_and_spotify_df["rating"]
-    FantAIno_KNN_df = melondy_and_spotify_df.drop(["rating"] + DROPPED_FEATURES, axis=1)
-
-    (
-        FantAIno_KNN_X_train,
-        FantAIno_KNN_X_test,
-        FantAIno_KNN_y_train,
-        FantAIno_KNN_y_test
-    ) = train_test_split(FantAIno_KNN_df, FantAIno_KNN_response, stratify=FantAIno_KNN_response, random_state=888)
-
-    ### TEMPORARY CODE ###
-
-    results_dict = {}
-    for root, dirs, files in os.walk(RESULTS_DIR):
-        if dirs == []:
-            for file in files:
-                if file.endswith(".joblib"):
-                    try:
-                        model_name = os.path.basename(root)
-                        run_name = os.path.splitext(file)[0]
-                        trained_model = joblib.load(os.path.join(root, file))
-                        preds = trained_model.predict(FantAIno_KNN_X_test)
-                        if any(term in model_name for term in ["Ordinal Logistic", "Classifier"]):
-                            metric = "accuracy"
-                            score = accuracy_score(FantAIno_KNN_y_test, preds)
-                        else:
-                            metric = "MSE"
-                            score = mean_squared_error(FantAIno_KNN_y_test, preds)
-
-                        results_dict[model_name] = results_dict.get(model_name, {})
-                        results_dict[model_name][run_name] = [
-                            metric,
-                            score,
-                        ]
-                    except Exception as e:
-                        print(f"Model {model_name} failed to load with error: {e}")
+    ### create results dict
+    ### run hydra predict on all models
 
     results_df = pd.concat({k: pd.DataFrame(v).T for k, v in results_dict.items()}).reset_index()
     results_df.columns = ["model", "run_name", "metric", "score"]
