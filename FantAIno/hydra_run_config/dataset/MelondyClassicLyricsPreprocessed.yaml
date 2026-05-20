@@ -1,0 +1,11 @@
+_target_: FantAIno.data.melondy_classic.MelondyClassicDataset
+split: ${mode}
+data_type: numpy
+drop_cols:
+openai_embedding_size: small
+
+lyrics_preprocessing_pipeline:
+  _target_: FantAIno.preprocessing.preprocessing.PreprocessingPipeline
+  steps:
+    - _target_: FantAIno.preprocessing.lyrics.preprocessing.Lyrics_Embeddings_PCA
+      n_components: 100

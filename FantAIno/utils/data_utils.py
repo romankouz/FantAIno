@@ -10,7 +10,6 @@ import requests
 import streamlit as st
 import sys
 
-from ast import literal_eval
 from io import BytesIO
 from PIL import Image
 
@@ -109,7 +108,7 @@ def clean_name(name: str):
     name = name.replace("'", "") # remove any single quotes because spotify uses fuzzy search and we don't want to URL encode unnecessarily
     return name
 
-def process_melondy_genre(melondy_df: pd.DataFrame, genre_column_name: str = "genre_list",top_K_pct: float = 1.0):
+def process_melondy_genre(melondy_df: pd.DataFrame, genre_column_name: str = "genre_list", top_K_pct: float = 1.0):
     """
     Takes the raw melondy data extraction and creates genre dummies.
     Keeps only the top_K_pct of represented genres in the pool.
@@ -118,9 +117,10 @@ def process_melondy_genre(melondy_df: pd.DataFrame, genre_column_name: str = "ge
     # get the genre counts
     genre_counts = {}
     for genre_list in melondy_df[genre_column_name]:
-        print(genre_list, type(genre_list))
-        for genre in literal_eval(genre_list):
+        for genre in genre_list:
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
+
+    print(genre_counts)
 
     # create the genre counts dataframe
     genre_counts_df = pd.DataFrame({'count': genre_counts.values()}, index=genre_counts.keys())
@@ -135,7 +135,8 @@ def process_melondy_genre(melondy_df: pd.DataFrame, genre_column_name: str = "ge
 
     # create the categorical features
     for genre in filtered_genre_counts_df.index:
-        melondy_df[f"is_{genre}"] = melondy_df[genre_column_name].apply(lambda x: genre in literal_eval(x))
+        print(genre, filtered_genre_counts_df)
+        melondy_df[f"is_{genre}"] = melondy_df[genre_column_name].apply(lambda x: float(genre in x))
     melondy_df.drop([genre_column_name], axis=1, inplace=True)
 
     return melondy_df

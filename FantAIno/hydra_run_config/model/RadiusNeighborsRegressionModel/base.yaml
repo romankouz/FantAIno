@@ -1,6 +1,6 @@
 _target_: FantAIno.models.radius_neighbors_classifier.RadiusNeighborsModel
 mode: regression
-radius: 5
+radius: 100
 param_grid: null
 scoring_method: neg_mean_squared_error
 model_run_name: base

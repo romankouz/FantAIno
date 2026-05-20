@@ -1,12 +1,12 @@
+from abc import ABC, abstractmethod
 import joblib
 import os
-import pandas as pd
 
-from abc import ABC, abstractmethod
 
 import FantAIno
 
 class FantAInoFitter(ABC):
+    """Abstract base class for all FantAIno models."""
 
     def __init__(self):
         self.model = None

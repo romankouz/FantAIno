@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - dataset: MelondyClassic
+  - dataset: MelondyClassicSimple
   - preprocessing: 
   - model: KNNClassificationModel/base
   - optimizer: null

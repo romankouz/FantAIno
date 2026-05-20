@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 
 from FantAIno.data.melondy_base import MelondyBaseDataset
 from FantAIno.utils.data_utils import extract_features
+from FantAIno.preprocessing.preprocessing import PreprocessingPipeline
 
 class MelondyClassicDataset(MelondyBaseDataset):
     """
@@ -18,12 +19,16 @@ class MelondyClassicDataset(MelondyBaseDataset):
         split: str = "train",
         data_type: str = "numpy",
         drop_cols: list[str] | None = None,
-        openai_embedding_size: str = "small"
+        openai_embedding_size: str = "small",
+        lyrics_preprocessing_pipeline: PreprocessingPipeline | None = None,
     ):
 
         super().__init__()
         self.album_data_df = self.retrieve_tabular_album_data()
         self.lyrics_embeddings_df = self.retrieve_lyrics_embeddings(openai_embedding_size=openai_embedding_size)
+
+        if lyrics_preprocessing_pipeline is not None:
+            self.lyrics_embeddings_df = lyrics_preprocessing_pipeline(self.lyrics_embeddings_df)
 
         dropped_cols = drop_cols or [
             # "artist", used as index
