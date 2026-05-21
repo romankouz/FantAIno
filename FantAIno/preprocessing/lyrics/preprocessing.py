@@ -18,7 +18,7 @@ class Lyrics_Embeddings_PCA():
         self.pca_kwargs = pca_kwargs
 
     def __call__(self, lyrics_embeddings_df: pd.DataFrame) -> pd.DataFrame:
-        warnings.warn(f"WARNING: Lyrics embeddings table has {(lyrics_embeddings_df.isnull().any(axis=1)).sum()} missing embeddings out of {lyrics_embeddings_df.shape[0]} entries.")
+        warnings.warn(f"WARNING: Lyrics embeddings table has {(lyrics_embeddings_df.isnull().any(axis=1)).sum()} missing embeddings out of {lyrics_embeddings_df.shape[0]} entries.", stacklevel=2)
         lyrics_embeddings_df.fillna(0, inplace=True)
         pca = PCA(n_components=self.n_components, **self.pca_kwargs)
         pca_array = pca.fit_transform(lyrics_embeddings_df.select_dtypes(include=[np.number]))

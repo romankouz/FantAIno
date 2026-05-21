@@ -20,6 +20,7 @@ class MelondyClassicDataset(MelondyBaseDataset):
         data_type: str = "numpy",
         drop_cols: list[str] | None = None,
         openai_embedding_size: str = "small",
+        album_data_preprocessing_pipeline: PreprocessingPipeline | None = None,
         lyrics_preprocessing_pipeline: PreprocessingPipeline | None = None,
     ):
 
@@ -27,6 +28,8 @@ class MelondyClassicDataset(MelondyBaseDataset):
         self.album_data_df = self.retrieve_tabular_album_data()
         self.lyrics_embeddings_df = self.retrieve_lyrics_embeddings(openai_embedding_size=openai_embedding_size)
 
+        if album_data_preprocessing_pipeline is not None:
+            self.album_data_df = album_data_preprocessing_pipeline(self.album_data_df)
         if lyrics_preprocessing_pipeline is not None:
             self.lyrics_embeddings_df = lyrics_preprocessing_pipeline(self.lyrics_embeddings_df)
 

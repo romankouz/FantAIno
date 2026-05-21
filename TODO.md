@@ -25,9 +25,11 @@
 
 # Runtime Enhancements
 
+[ ] When running a hydra multirun, find a way to cache the data so you're not retrieving the data from AWS every time.
+
 # Code Cleanliness
 
-[ ] Merge existing classes to handle classification or regression in the same file. Take "regression" or "classification" as the task and edit the appropriate parameters accordingly.
+[ ] Change the run name to reflect the dataset parameters.
 [ ] Train and test of various models likely doesn't take pd.DataFrames but the type hints don't reflect that. Fix it.
 [ ] Ensure `process_spotify_album_data` has stricter type checking.
 [ ] Edit doc strings to have args returns notation. (`spotify_utils.py`, `aoty_scraper.py`)
@@ -67,6 +69,7 @@
 [x] Ensure better logging than "print", especially in scratch. Save the print to log files to examine later.
 [x] Create a logger for spotify in it's utils. It currently prints out when something wasn't retrievable by spotify.
 [x] Explore `joblib.parallel_backend` for n_jobs argument in sklearn models.
+[x] Merge existing classes to handle classification or regression in the same file. Take "regression" or "classification" as the task and edit the appropriate parameters accordingly.
 
 
 

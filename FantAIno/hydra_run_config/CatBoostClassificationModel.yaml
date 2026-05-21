@@ -1,7 +1,7 @@
 defaults:
   - _self_
   - dataset: MelondyClassicSimple
-  - preprocessing: 
+  - preprocessing: default
   - model: CatBoostClassificationModel/base
   - optimizer: null
   - training: catboost_default

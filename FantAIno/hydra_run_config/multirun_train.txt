@@ -1,5 +1,7 @@
 python -m FantAIno.inference.run -m ^
-"model=CatBoostClassificationModel/base,^
+"model=NaiveRandomModel/base,^
+NaiveMajorityModel/base,^
+CatBoostClassificationModel/base,^
 CatBoostRegressionModel/base,^
 KNNClassificationModel/base,^
 KNNRegressionModel/base,^

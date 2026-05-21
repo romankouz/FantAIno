@@ -1,1 +1,2 @@
 mode: predict
+record_result: true

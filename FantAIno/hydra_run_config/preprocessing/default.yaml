@@ -1,0 +1,10 @@
+lyrics_preprocessing_pipeline:
+  _target_: FantAIno.preprocessing.preprocessing.PreprocessingPipeline
+  steps:
+    - _target_: FantAIno.preprocessing.lyrics.preprocessing.Lyrics_Embeddings_PCA
+      n_components: 100
+
+album_data_preprocessing_pipeline:
+  _target_: FantAIno.preprocessing.preprocessing.PreprocessingPipeline
+  steps:
+    - _target_: FantAIno.preprocessing.album_data.preprocessing.AlbumData_Preprocessor

@@ -1,4 +1,4 @@
-_target_: FantAIno.models.catboost_classifier.CatBoostModel
+_target_: FantAIno.models.catboost.CatBoostModel
 mode: regression
 iterations: 100
 depth: 3

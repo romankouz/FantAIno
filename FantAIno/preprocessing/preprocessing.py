@@ -2,7 +2,7 @@ class PreprocessingPipeline:
     """
     Preprocessing pipeline for FantAIno.
     """
-    
+
     def __init__(self, steps):
         self.steps = steps
 

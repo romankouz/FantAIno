@@ -8,7 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from FantAIno.models.fantaino_base import FantAInoFitter
 
-class RandomForestClassificationModel(FantAInoFitter):
+class RandomForestModel(FantAInoFitter):
     """Random Forest model for FantAIno."""
 
     def __init__(

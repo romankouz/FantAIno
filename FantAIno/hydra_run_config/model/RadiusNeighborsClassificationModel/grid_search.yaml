@@ -1,8 +1,8 @@
-_target_: FantAIno.models.radius_neighbors_classifier.RadiusNeighborsModel
+_target_: FantAIno.models.radius_neighbors.RadiusNeighborsModel
 mode: classification
-radius: 100
+radius: 1000
 param_grid: 
-    radius: [20, 50, 100, 250]
+    radius: [200, 500, 1000, 2500]
     weights: ["uniform", "distance"]
     p: [1, 2]
 scoring_method: accuracy

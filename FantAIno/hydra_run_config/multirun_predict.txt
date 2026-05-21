@@ -1,0 +1,16 @@
+python -m FantAIno.inference.run -m ^
+mode=test ^
+prediction.mode=evaluate ^
+"model=NaiveRandomModel/base,^
+NaiveMajorityModel/base,^
+CatBoostClassificationModel/base,^
+CatBoostRegressionModel/base,^
+KNNClassificationModel/base,^
+KNNRegressionModel/base,^
+NCAClassificationModel/base,^
+NCARegressionModel/base,^
+OrdinalLogisticRegressionModel/base,^
+RadiusNeighborsClassificationModel/base,^
+RadiusNeighborsRegressionModel/base,^
+RandomForestClassificationModel/base,^
+RandomForestRegressionModel/base"
