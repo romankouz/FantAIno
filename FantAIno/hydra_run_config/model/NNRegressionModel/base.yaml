@@ -1,0 +1,12 @@
+_target_: FantAIno.models.neural_network.NeuralNetworkModel
+mode: regression
+hidden_dims: [128, 128, 128]
+output_dim: 1
+activation:
+  _target_: torch.nn.ReLU
+final_activation:
+dropout: 0.2
+loss_fn: 
+  _target_: torch.nn.MSELoss
+optimizer: ${optimizer}
+model_run_name: base

@@ -6,7 +6,7 @@ from FantAIno.constants import ROOT_DIR
 from FantAIno.inference.train import train
 from FantAIno.inference.predict import predict
 
-@hydra.main(version_base=None, config_path=os.path.join(ROOT_DIR, "hydra_run_config"), config_name="OrdinalLogisticRegressionModel")
+@hydra.main(version_base=None, config_path=os.path.join(ROOT_DIR, "hydra_run_config"), config_name="NNRegressionModel")
 def FantAInoRun(cfg: DictConfig) -> None:
     """Run the FantAIno pipeline."""
     print(OmegaConf.to_yaml(cfg))

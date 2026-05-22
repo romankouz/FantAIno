@@ -38,7 +38,7 @@ def predict(cfg: DictConfig) -> None:
 
             if cfg.prediction.record_result:
 
-                if any(term in model.model_name for term in ["Ordinal Logistic", "Classifier"]):
+                if any(term in model.model_name for term in ["Ordinal Logistic", "Guesser", "Classifier"]):
                     metric = "accuracy"
                     test_score = accuracy_score(y_test, y_pred)
                 else:
@@ -49,7 +49,7 @@ def predict(cfg: DictConfig) -> None:
                     "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "model": model.model_name,
                     "run_name": model.model_run_name,
-                    "dataset": type(cfg.dataset).__name__,
+                    "dataset": str(cfg.dataset._target_).rsplit('.', maxsplit=1)[-1],
                     "metric": metric,
                     "score": test_score
                 }
@@ -60,12 +60,17 @@ def predict(cfg: DictConfig) -> None:
                 if os.path.exists(results_path):
                     existing_df = pd.read_csv(results_path)
                     merged_df = pd.concat([existing_df, result_df], ignore_index=True)
+                    merged_df = merged_df.drop_duplicates(subset=['model', 'run_name', 'dataset', 'metric'], keep='last')
                 else:
                     merged_df = result_df
 
                 merged_df.to_csv(results_path, index=False)
 
             print(f"{model.model_name} Test {metric}: {test_score}")
+            predictions_path = os.path.join(RESULTS_DIR, f"{model.model_name}_{model.model_run_name}.csv")
+            predictions_df = pd.concat([FantAIno_df_obj.FantAIno_index.to_frame().reset_index(drop=True), pd.Series(y_pred.ravel()), pd.Series(y_test.ravel())], axis=1)
+            predictions_df.columns = ["album_name", "artist_name", "prediction", "actual"]
+            predictions_df.to_csv(predictions_path)
 
             return y_pred, test_score
 

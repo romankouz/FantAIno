@@ -24,7 +24,7 @@ def process_image_s3(s3_client, artist_name, album_name, original_image_path):
     """
 
     try:
-        if original_image_path is not None:
+        if original_image_path:
             _, extension = os.path.splitext(original_image_path)
             response = requests.get(original_image_path, timeout=10)
             album_image_filename = sanitize_filename(f"{artist_name}___{album_name}{extension}")

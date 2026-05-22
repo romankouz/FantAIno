@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+  - dataset: MelondyClassicSimple
+  - preprocessing: default
+  - model: NNRegressionModel/base
+  - optimizer: sgd
+  - training: sklearn_default
+  - prediction: default
+
+mode: train

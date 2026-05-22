@@ -12,6 +12,8 @@ matplotlib
 mord
 musicxmatch_api
 openai
+optuna
+optuna-integration[pytorch_lightning]
 pandas==2.3.3
 pandarallel
 playwright==1.58.0

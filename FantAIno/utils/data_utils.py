@@ -1,5 +1,5 @@
 """
-Helper functions for processing any acquired data of Fantano's reviews
+Helper functions for processing any acquired input data of Fantano's reviews or output of FantAIno's analysis.
 """
 from dotenv import load_dotenv
 import numpy as np
@@ -7,6 +7,7 @@ import os
 from openai import OpenAI
 import pandas as pd
 import requests
+from sklearn.metrics import accuracy_score
 import streamlit as st
 import sys
 
@@ -18,6 +19,9 @@ def get_secret(key: str):
 
 load_dotenv()
 client = OpenAI(api_key=get_secret("OPENAI_API_KEY"))
+
+def accuracy_score_from_regression_output(y_pred, y_true) -> float:
+    pass
 
 def convert_to_list(x):
     return list(x) if x is not None else None
@@ -78,7 +82,7 @@ def process_torchvision_image(artist_name, album_name, original_image_path, rati
     """
 
     try:
-        if original_image_path is not None:
+        if original_image_path:
             train_folder = "train" if train else "test"
             _, extension = os.path.splitext(original_image_path)
             response = requests.get(original_image_path, timeout=10)

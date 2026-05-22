@@ -1,0 +1,5 @@
+accelerator: auto
+auto_lr_find: true
+check_val_every_n_epoch: 5
+max_epochs: 1000
+min_epochs: 50

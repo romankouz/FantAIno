@@ -18,7 +18,7 @@ class NaiveMajorityModel(FantAInoFitter):
         self.model = stats.mode(y_train).mode.item()
 
     def predict(self, X_test):
-        if self.model is not None:
+        if self.model:
             return np.array([self.model] * len(X_test))
         else:
             raise ValueError("self.model is not fitted. Call train() first.")

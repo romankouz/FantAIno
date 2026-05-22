@@ -3,6 +3,7 @@
 [ ] SageMaker
 [ ] Parquet (blog)
 [ ] Spark
+[ ] Tabular Foundation Models
 
 # Data
 
@@ -22,6 +23,8 @@
 [ ] LightGBM
 [ ] XGBoost
 [ ] Ensure CatBoost doesn't preprocess the categorical variables away.
+[ ] AIC/BIC on regression model inputs.
+[ ] Bayesian Hyperparamter Tuning
 
 # Runtime Enhancements
 

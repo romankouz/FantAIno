@@ -28,9 +28,9 @@ class MelondyClassicDataset(MelondyBaseDataset):
         self.album_data_df = self.retrieve_tabular_album_data()
         self.lyrics_embeddings_df = self.retrieve_lyrics_embeddings(openai_embedding_size=openai_embedding_size)
 
-        if album_data_preprocessing_pipeline is not None:
+        if album_data_preprocessing_pipeline:
             self.album_data_df = album_data_preprocessing_pipeline(self.album_data_df)
-        if lyrics_preprocessing_pipeline is not None:
+        if lyrics_preprocessing_pipeline:
             self.lyrics_embeddings_df = lyrics_preprocessing_pipeline(self.lyrics_embeddings_df)
 
         dropped_cols = drop_cols or [
@@ -39,6 +39,7 @@ class MelondyClassicDataset(MelondyBaseDataset):
             "genre_list",
             "featured_artists",
             "track_names",
+            "rating",
         ]
 
         self.FantAIno_df = self.album_data_df.merge(self.lyrics_embeddings_df, on=["album_name", "artist_name"], how="left")
@@ -48,7 +49,7 @@ class MelondyClassicDataset(MelondyBaseDataset):
         self.FantAIno_df.set_index(["album_name", "artist_name"], inplace=True)
         self.FantAIno_df_X = extract_features(self.FantAIno_df, dropped_cols, omit_mode=True)
         self.FantAIno_df_y = self.FantAIno_df["rating"].astype(int)
-        self.FantAIno_df_X_train, self.FantAIno_df_X_test, self.FantAIno_df_y_train, self.FantAIno_df_y_test = train_test_split(self.FantAIno_df_X, self.FantAIno_df_y, test_size=0.2, random_state=self.seed)
+        self.FantAIno_df_X_train, self.FantAIno_df_X_test, self.FantAIno_df_y_train, self.FantAIno_df_y_test = train_test_split(self.FantAIno_df_X, self.FantAIno_df_y, test_size=0.2, random_state=self.seed, stratify=self.FantAIno_df_y)
 
         match split:
             case "train":
@@ -62,16 +63,16 @@ class MelondyClassicDataset(MelondyBaseDataset):
 
         match data_type:
             case "numpy":
+                self.FantAIno_index = self.FantAIno_df_X.index
                 self.FantAIno_df_X = self.FantAIno_df_X.to_numpy()
                 self.FantAIno_df_y = self.FantAIno_df_y.to_numpy()
-                self.FantAIno_index = self.FantAIno_df.index
             case "pytorch":
-                self.FantAIno_df_X = torch.from_numpy(self.FantAIno_df_X.to_numpy())
-                self.FantAIno_df_y = torch.from_numpy(self.FantAIno_df_y.to_numpy()).reshape(-1, 1)
-                self.FantAIno_index = self.FantAIno_df.index
+                self.FantAIno_index = self.FantAIno_df_X.index
+                self.FantAIno_df_X = torch.from_numpy(self.FantAIno_df_X.to_numpy()).float()
+                self.FantAIno_df_y = torch.from_numpy(self.FantAIno_df_y.to_numpy()).float().reshape(-1, 1)
             case "tensorflow":
+                self.FantAIno_index = self.FantAIno_df_X.index
                 self.FantAIno_df_X = tf.convert_to_tensor(self.FantAIno_df_X.to_numpy())
                 self.FantAIno_df_y = tf.convert_to_tensor(self.FantAIno_df_y.to_numpy()).reshape(-1, 1)
-                self.FantAIno_index = self.FantAIno_df.index
             case _:
                 raise ValueError(f"The data type {data_type} is not supported.")
