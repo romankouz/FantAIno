@@ -4,7 +4,7 @@ defaults:
   - preprocessing: default
   - model: NNRegressionModel/base
   - optimizer: sgd
-  - training: sklearn_default
+  - training: pytorch_lightning_default
   - prediction: default
 
 mode: train

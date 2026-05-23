@@ -4,7 +4,9 @@ Library of preprocessing modules for album data in the FantAIno project.
 
 """
 
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 from FantAIno.utils.data_utils import process_melondy_genre
 
@@ -20,5 +22,10 @@ class AlbumData_Preprocessor:
 
         # 0 infill missing values
         album_data_df.fillna(0, inplace=True)
+
+        # normalize the data
+        scaler = StandardScaler()
+        columns_to_scale = album_data_df.select_dtypes(include=[np.number]).columns
+        album_data_df[columns_to_scale] = scaler.fit_transform(album_data_df[columns_to_scale])
 
         return album_data_df

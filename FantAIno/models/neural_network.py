@@ -14,11 +14,12 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         mode: str = "regression",
         hidden_dims: list[int] = [128, 128, 128],
         output_dim: int = 1,
-        activation: torch.nn.Module = torch.nn.ReLU(),
+        activation: torch.nn.Module = torch.nn.ReLU,
         final_activation: torch.nn.Module | None = None,
         dropout: list[float] | float = 0.2,
         loss_fn: torch.nn.Module = torch.nn.MSELoss(),
         optimizer: callable = torch.optim.SGD,
+        trainer_dict: dict = {},
         model_run_name: str = "master",
     ):
         FantAInoFitter.__init__(self)
@@ -33,6 +34,7 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         self.dropout = dropout
         self.loss_fn = loss_fn
         self.optimizer = optimizer
+        self.trainer = L.Trainer(**trainer_dict)
         self.model_run_name = model_run_name
 
         # validate/fix input parameters
@@ -58,33 +60,33 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
             # handle input
             self.model = torch.nn.Sequential(
                 torch.nn.LazyLinear(self.hidden_dims[0]),
-                self.activation,
+                self.activation(),
             )
             # handle hidden layers
             for i in range(len(self.hidden_dims)-2):
                 self.model.append(torch.nn.Dropout(self.dropout[i]))
                 self.model.append(torch.nn.Linear(self.hidden_dims[i], self.hidden_dims[i+1]))
-                self.model.append(self.activation)
+                self.model.append(self.activation())
             # handle output layer
             self.model.append(torch.nn.Dropout(self.dropout[-1]))
             self.model.append(torch.nn.Linear(self.hidden_dims[-1], self.output_dim))
             if self.final_activation:
                 self.model.append(self.final_activation)
 
-    def train(self, X_train, y_train):
-        train_data = DataLoader(TensorDataset(X_train, y_train))
-        trainer = L.Trainer()
-        trainer.fit(self, train_data)
+    def train(self, X_train, y_train, val_proportion: float = 0.15):
+        all_data = TensorDataset(X_train, y_train)
+        train_dataset, validation_dataset = torch.utils.data.random_split(all_data, [1-val_proportion, val_proportion])
+        train_data = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
+        validation_data = DataLoader(validation_dataset, batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
+        self.trainer.fit(self, train_data, validation_data)
 
     def predict(self, X_test):
-        test_data = DataLoader(TensorDataset(X_test))
-        trainer = L.Trainer()
-        return trainer.predict(self, test_data)
+        test_data = DataLoader(TensorDataset(X_test), batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
+        return self.trainer.predict(self, test_data)
 
     def evaluate(self, X_test, y_test, loss_fn: callable = None):
-        test_data = DataLoader(TensorDataset(X_test, y_test))
-        trainer = L.Trainer()
-        trainer.test(self, test_data)
+        test_data = DataLoader(TensorDataset(X_test, y_test), batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
+        self.trainer.test(self, test_data)
         return 5
 
     def save_esimtator(self, model_run_name: str):
@@ -105,7 +107,7 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         x, y = train_batch
         output = self(x)
         loss = self.loss_fn(output, y)
-        self.log("train_loss", loss)
+        self.log("train_loss", loss, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, val_batch, val_batch_idx):

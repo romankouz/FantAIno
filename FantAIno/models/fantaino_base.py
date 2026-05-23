@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 import joblib
 import os
 
-
 import FantAIno
 
 class FantAInoFitter(ABC):
@@ -17,7 +16,6 @@ class FantAInoFitter(ABC):
     def load_estimator(self, model_run_name: str):
         """Retrieve the current estimator."""
         self.model = joblib.load(os.path.join(self.root_dir, "results", self.model_name, f"{model_run_name}.joblib"))
-
 
     def save_estimator(self, model_run_name: str):
         """Save the current estimator to a file."""
