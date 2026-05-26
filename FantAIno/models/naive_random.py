@@ -13,11 +13,11 @@ class NaiveRandomModel(FantAInoFitter):
         self.model_run_name = model_run_name
         self.model = "100 horses. Confused right? Well it's random :). No model for random guessing."
 
-    def train(self, X_train, y_train):
+    def train_model(self, X_train, y_train):
         print("Naive random guesser doesn't need to be trained! We just randomly guess :D")
 
-    def predict(self, X_test: pd.DataFrame) -> pd.Series:
+    def predict_from_model(self, X_test: pd.DataFrame) -> pd.Series:
         return np.random.choice(np.arange(-1, 11), len(X_test))
 
-    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: accuracy_score) -> float:
-        return loss_fn(self.predict(X_test), y_test)
+    def evaluate_model(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: accuracy_score) -> float:
+        return loss_fn(self.predict_from_model(X_test), y_test)

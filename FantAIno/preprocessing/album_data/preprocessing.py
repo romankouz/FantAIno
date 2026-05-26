@@ -25,7 +25,7 @@ class AlbumData_Preprocessor:
 
         # normalize the data
         scaler = StandardScaler()
-        columns_to_scale = album_data_df.select_dtypes(include=[np.number]).columns
+        columns_to_scale = [column_name for column_name in album_data_df.select_dtypes(include=[np.number]).columns if column_name != "rating"]
         album_data_df[columns_to_scale] = scaler.fit_transform(album_data_df[columns_to_scale])
 
         return album_data_df

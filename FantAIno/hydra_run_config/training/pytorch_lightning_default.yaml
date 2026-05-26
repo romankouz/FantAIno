@@ -1,7 +1,7 @@
 trainer:
   accelerator: auto
   check_val_every_n_epoch: 5
-  max_epochs: 1000
-  min_epochs: 50
+  max_epochs: 10
+  min_epochs: 1
 
 pruner:

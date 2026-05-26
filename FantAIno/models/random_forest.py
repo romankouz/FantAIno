@@ -40,7 +40,7 @@ class RandomForestModel(FantAInoFitter):
         self.model = self.base_model
         self.model_run_name = model_run_name
 
-    def train(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
+    def train_model(self, X_train: pd.DataFrame, y_train: pd.Series) -> None:
         
         if self.param_grid:
             self.model = GridSearchCV(
@@ -52,7 +52,7 @@ class RandomForestModel(FantAInoFitter):
 
         self.model.fit(X_train, y_train)
 
-    def predict(self, X_test: pd.DataFrame) -> pd.Series:
+    def predict_from_model(self, X_test: pd.DataFrame) -> pd.Series:
         try:
             check_is_fitted(self.model)
         # exc notation extends existing exception instead of overwriting it
@@ -60,13 +60,13 @@ class RandomForestModel(FantAInoFitter):
             raise NotFittedError("Model must be fitted before predicting.") from exc
         return self.model.predict(X_test)
 
-    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: callable = None) -> float:
+    def evaluate_model(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: callable = None) -> float:
         if loss_fn is None:
             loss_fn = mean_squared_error if self.mode == "regression" else accuracy_score
         try:
             check_is_fitted(self.model)
         except NotFittedError as exc:
             raise NotFittedError("Model must be fitted before prediction and evaluation.") from exc
-        return loss_fn(self.predict(X_test), y_test)
+        return loss_fn(self.predict_from_model(X_test), y_test)
 
 

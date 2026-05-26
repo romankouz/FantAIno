@@ -13,15 +13,15 @@ class NaiveMajorityModel(FantAInoFitter):
         self.model_name = "Naive Majority Guesser"
         self.model_run_name = model_run_name
 
-    def train(self, X_train, y_train):
+    def train_model(self, X_train, y_train):
         # model is just the most common class
         self.model = stats.mode(y_train).mode.item()
 
-    def predict(self, X_test):
+    def predict_from_model(self, X_test):
         if self.model:
             return np.array([self.model] * len(X_test))
         else:
-            raise ValueError("self.model is not fitted. Call train() first.")
+            raise ValueError("self.model is not fitted. Call train_model() first.")
 
-    def evaluate(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: accuracy_score) -> float:
-        return loss_fn(self.predict(X_test), y_test)
+    def evaluate_model(self, X_test: pd.DataFrame, y_test: pd.Series, loss_fn: accuracy_score) -> float:
+        return loss_fn(self.predict_from_model(X_test), y_test)

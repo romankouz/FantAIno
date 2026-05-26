@@ -1,6 +1,6 @@
 _target_: FantAIno.models.neural_network.NeuralNetworkModel
 mode: regression
-hidden_dims: [128, 128, 128]
+hidden_dims: [1024, 512, 256, 128, 64, 32]
 output_dim: 1
 activation: 
   _target_: torch.nn.ReLU

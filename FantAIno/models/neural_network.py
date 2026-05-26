@@ -1,4 +1,5 @@
 import lightning as L
+from lightning.pytorch.callbacks import ModelCheckpoint
 import os
 import tensorflow as tf
 import torch
@@ -6,7 +7,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from FantAIno.models.fantaino_base import FantAInoFitter
 
-class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
+class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
     """Dense Neural Network model for FantAIno."""
 
     def __init__(
@@ -21,10 +22,10 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         optimizer: callable = torch.optim.SGD,
         trainer_dict: dict = {},
         model_run_name: str = "master",
+        overwrite_previous_ckpt: bool = True,
     ):
         FantAInoFitter.__init__(self)
         L.LightningModule.__init__(self)
-        self.save_hyperparameters()
 
         self.mode = mode
         self.hidden_dims = hidden_dims
@@ -34,8 +35,6 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         self.dropout = dropout
         self.loss_fn = loss_fn
         self.optimizer = optimizer
-        self.trainer = L.Trainer(**trainer_dict)
-        self.model_run_name = model_run_name
 
         # validate/fix input parameters
         if self.mode == "regression":
@@ -47,6 +46,21 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
             self.model_name = "NN Classifier"
         else:
             raise ValueError(f"Invalid mode: {self.mode}")
+
+        self.model_run_name = model_run_name
+        self.checkpoint_path = os.path.join(self.root_dir, "results", self.model_name)
+        ckpt_file = os.path.exists(os.path.join(self.checkpoint_path, f"{model_run_name}.ckpt"))
+        if overwrite_previous_ckpt and os.path.exists(ckpt_file):
+            os.remove(ckpt_file)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=self.checkpoint_path,
+            filename=f"{self.model_run_name}"
+        )
+        self.trainer = L.Trainer(
+            **trainer_dict,
+            default_root_dir=self.checkpoint_path,
+            callbacks=[checkpoint_callback]
+        )
         
         if isinstance(self.dropout, list) and len(self.dropout) != len(self.hidden_dims):
             self.dropout = [0.2] * len(self.hidden_dims)
@@ -63,7 +77,7 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
                 self.activation(),
             )
             # handle hidden layers
-            for i in range(len(self.hidden_dims)-2):
+            for i in range(len(self.hidden_dims)-1):
                 self.model.append(torch.nn.Dropout(self.dropout[i]))
                 self.model.append(torch.nn.Linear(self.hidden_dims[i], self.hidden_dims[i+1]))
                 self.model.append(self.activation())
@@ -73,29 +87,42 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
             if self.final_activation:
                 self.model.append(self.final_activation)
 
-    def train(self, X_train, y_train, val_proportion: float = 0.15):
+    def train_model(self, X_train, y_train, val_proportion: float = 0.15):
         all_data = TensorDataset(X_train, y_train)
         train_dataset, validation_dataset = torch.utils.data.random_split(all_data, [1-val_proportion, val_proportion])
         train_data = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
-        validation_data = DataLoader(validation_dataset, batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
+        validation_data = DataLoader(validation_dataset, batch_size=64, shuffle=False, num_workers=8, persistent_workers=True)
         self.trainer.fit(self, train_data, validation_data)
 
-    def predict(self, X_test):
-        test_data = DataLoader(TensorDataset(X_test), batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
-        return self.trainer.predict(self, test_data)
+    def predict_from_model(self, X_test):
+        test_data = DataLoader(TensorDataset(X_test), batch_size=64, shuffle=False, num_workers=8, persistent_workers=True)
+        predictions_list = self.trainer.predict(self, test_data)
+        predictions = torch.cat(predictions_list, axis=0)
+        return predictions
 
-    def evaluate(self, X_test, y_test, loss_fn: callable = None):
-        test_data = DataLoader(TensorDataset(X_test, y_test), batch_size=64, shuffle=True, num_workers=8, persistent_workers=True)
-        self.trainer.test(self, test_data)
-        return 5
+    def evaluate_model(self, X_test, y_test, loss_fn: callable = None):
+        test_data = DataLoader(TensorDataset(X_test, y_test), batch_size=64, shuffle=False, num_workers=8, persistent_workers=True)
+        test_loss_dict = self.trainer.test(self, test_data)
+        return test_loss_dict[0]["test_loss"]
 
-    def save_esimtator(self, model_run_name: str):
+    def save_estimator(self, model_run_name: str):
         """Save the current estimator the way Pytorch Lightning expects."""
         print("NOTE: Saving of the estimator is handled by the trainer.")
-
+    
     def load_estimator(self, model_run_name: str):
-        checkpoint_path = os.path.join(self.root_dir, "results", self.model_name, f"{model_run_name}.ckpt")
-        self.model = self.load_from_checkpoint(checkpoint_path)
+        loaded_model = NeuralNetworkModel.load_from_checkpoint(
+            checkpoint_path=os.path.join(self.checkpoint_path, f"{model_run_name}.ckpt"),
+            mode=self.mode,
+            hidden_dims=self.hidden_dims,
+            output_dim=self.output_dim,
+            activation=self.activation,
+            final_activation=self.final_activation,
+            dropout=self.dropout,
+            loss_fn=self.loss_fn,
+            optimizer=self.optimizer,
+            model_run_name=model_run_name,
+        )
+        self.model = loaded_model.model
 
     def configure_optimizers(self):
         return self.optimizer(self.parameters())
@@ -118,7 +145,7 @@ class NeuralNetworkModel(FantAInoFitter, L.LightningModule):
         return loss
 
     def predict_step(self, pred_batch, pred_batch_idx):
-        x = pred_batch
+        x, = pred_batch
         output = self(x)
         return output
 

@@ -28,13 +28,13 @@ class FantAInoFitter(ABC):
 
 
     @abstractmethod
-    def train(self, X_train, y_train):
-        """Training method."""
+    def train_model(self, X_train, y_train):
+        """Training method (named to avoid clashing with nn.Module.train and similar)."""
 
     @abstractmethod
-    def predict(self, X_test):
-        """Prediction method."""
+    def predict_from_model(self, X_test):
+        """Prediction method (named to avoid clashing with estimator .predict APIs)."""
 
     @abstractmethod
-    def evaluate(self, X_test, y_test, loss_fn):
-        """Evaluation method."""
+    def evaluate_model(self, X_test, y_test, loss_fn):
+        """Evaluation method (named to avoid clashing with other evaluate helpers)."""

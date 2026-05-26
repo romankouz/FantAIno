@@ -1,10 +1,11 @@
 # NN
 
-[ ] Why is loss NAN?
+[X] Why is loss NAN?
 [ ] Incorporate Optuna (first via jupyter notebook)
 [ ] Incorporate nested CV (save yaml like results to a verified or CV_result.yaml)
 [ ] Add early stopping callback
-[ ] Implement evaluate correctly.
+[X] Implement evaluate correctly.
+[ ] ckpt doesn't get overwritten. FIX!
 
 # Reading
 

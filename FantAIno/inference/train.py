@@ -19,5 +19,5 @@ def train(cfg: DictConfig) -> None:
     X_train, y_train = FantAIno_df_obj.FantAIno_df_X, FantAIno_df_obj.FantAIno_df_y
 
     model = instantiate(cfg.model, _convert_="partial")
-    model.train(X_train, y_train)
+    model.train_model(X_train, y_train)
     model.save_estimator(model.model_run_name)
