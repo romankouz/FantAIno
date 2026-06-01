@@ -1,11 +1,13 @@
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 import os
 import tensorflow as tf
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
 from FantAIno.models.fantaino_base import FantAInoFitter
+from FantAIno.utils.metrics import rounded_regression_accuracy
 
 class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
     """Dense Neural Network model for FantAIno."""
@@ -21,8 +23,9 @@ class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
         loss_fn: torch.nn.Module = torch.nn.MSELoss(),
         optimizer: callable = torch.optim.SGD,
         trainer_dict: dict = {},
+        early_stopping_dict: dict = {},
         model_run_name: str = "master",
-        overwrite_previous_ckpt: bool = True,
+        overwrite_previous_ckpt: bool = False,
     ):
         FantAInoFitter.__init__(self)
         L.LightningModule.__init__(self)
@@ -49,18 +52,26 @@ class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
 
         self.model_run_name = model_run_name
         self.checkpoint_path = os.path.join(self.root_dir, "results", self.model_name)
-        ckpt_file = os.path.exists(os.path.join(self.checkpoint_path, f"{model_run_name}.ckpt"))
+        ckpt_file = os.path.join(self.checkpoint_path, f"{model_run_name}.ckpt")
         if overwrite_previous_ckpt and os.path.exists(ckpt_file):
             os.remove(ckpt_file)
         checkpoint_callback = ModelCheckpoint(
             dirpath=self.checkpoint_path,
             filename=f"{self.model_run_name}"
         )
-        self.trainer = L.Trainer(
-            **trainer_dict,
-            default_root_dir=self.checkpoint_path,
-            callbacks=[checkpoint_callback]
-        )
+        if early_stopping_dict:
+            early_stopping_callback = EarlyStopping(**early_stopping_dict)
+            self.trainer = L.Trainer(
+                **trainer_dict,
+                default_root_dir=self.checkpoint_path,
+                callbacks=[checkpoint_callback, early_stopping_callback]
+            )
+        else:
+            self.trainer = L.Trainer(
+                **trainer_dict,
+                default_root_dir=self.checkpoint_path,
+                callbacks=[checkpoint_callback]
+            )
         
         if isinstance(self.dropout, list) and len(self.dropout) != len(self.hidden_dims):
             self.dropout = [0.2] * len(self.hidden_dims)
@@ -135,6 +146,7 @@ class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
         output = self(x)
         loss = self.loss_fn(output, y)
         self.log("train_loss", loss, prog_bar=True, logger=True)
+        self.log("train_accuracy", rounded_regression_accuracy(y.detach().cpu().numpy(), output.detach().cpu().numpy()), prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, val_batch, val_batch_idx):
@@ -142,6 +154,7 @@ class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
         output = self(x)
         loss = self.loss_fn(output, y)
         self.log("validation_loss", loss)
+        self.log("validation_accuracy", rounded_regression_accuracy(y.detach().cpu().numpy(), output.detach().cpu().numpy()), prog_bar=True, logger=True)
         return loss
 
     def predict_step(self, pred_batch, pred_batch_idx):
@@ -154,6 +167,7 @@ class NeuralNetworkModel(FantAInoFitter,L.LightningModule):
         output = self(x)
         loss = self.loss_fn(output, y)
         self.log("test_loss", loss)
+        self.log("test_accuracy", rounded_regression_accuracy(y.detach().cpu().numpy(), output.detach().cpu().numpy()), prog_bar=True, logger=True)
         return loss
 
     

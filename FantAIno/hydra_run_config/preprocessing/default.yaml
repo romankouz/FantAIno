@@ -2,7 +2,7 @@ lyrics_preprocessing_pipeline:
   _target_: FantAIno.preprocessing.preprocessing.PreprocessingPipeline
   steps:
     - _target_: FantAIno.preprocessing.lyrics.preprocessing.Lyrics_Embeddings_PCA
-      n_components: 100
+      n_components: 15
 
 album_data_preprocessing_pipeline:
   _target_: FantAIno.preprocessing.preprocessing.PreprocessingPipeline

@@ -3,7 +3,7 @@ defaults:
   - dataset: MelondyClassicSimple
   - preprocessing: default
   - model: NNRegressionModel/base
-  - optimizer: sgd
+  - optimizer: adam
   - training: pytorch_lightning_default
   - prediction: default
 

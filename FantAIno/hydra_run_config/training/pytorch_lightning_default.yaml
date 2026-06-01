@@ -1,7 +1,14 @@
 trainer:
   accelerator: auto
   check_val_every_n_epoch: 5
-  max_epochs: 10
+  max_epochs: 10000
   min_epochs: 1
 
 pruner:
+
+early_stopping:
+  monitor: "validation_loss"
+  min_delta: 0.001
+  patience: 10
+  verbose: False
+  mode: "min"

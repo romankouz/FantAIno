@@ -5,7 +5,7 @@
 [ ] Incorporate nested CV (save yaml like results to a verified or CV_result.yaml)
 [ ] Add early stopping callback
 [X] Implement evaluate correctly.
-[ ] ckpt doesn't get overwritten. FIX!
+[X] ckpt doesn't get overwritten. FIX!
 
 # Reading
 

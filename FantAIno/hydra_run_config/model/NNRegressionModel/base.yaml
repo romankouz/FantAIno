@@ -6,9 +6,11 @@ activation:
   _target_: torch.nn.ReLU
   _partial_: true
 final_activation:
-dropout: 0.2
+dropout: 0.0
 loss_fn: 
   _target_: torch.nn.MSELoss
 optimizer: ${optimizer}
 trainer_dict: ${training.trainer}
+early_stopping_dict: ${training.early_stopping}
 model_run_name: base
+overwrite_previous_ckpt: false
