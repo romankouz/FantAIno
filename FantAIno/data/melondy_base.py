@@ -51,31 +51,29 @@ class MelondyBaseDataset():
 
     def retrieve_lyrics_data(self):
 
-        lyrics_df = (dc.read_storage(
+        lyrics_df = dc.read_json(
             rf"s3://{S3_GENERAL_PURPOSE_BUCKET_NAME}/lyrics\*",
-            type="jsonl",
+            type="text",
+            format="jsonl",
+            spec=LyricsRow,
             client_config = {
                 "key": get_secret("AWS_ACCESS_KEY_ID"),
                 "secret": get_secret("AWS_SECRET_ACCESS_KEY")
             }
-        )
-            .persist()
-        )
+        ).persist()
 
         return lyrics_df
 
     def retrieve_album_art_data(self):
         
-        image_df = (dc.read_storage(
+        image_df = dc.read_storage(
             rf"s3://{S3_GENERAL_PURPOSE_BUCKET_NAME}/album_art\*",
-            type="image",
+            type="image", 
             client_config = {
                 "key": get_secret("AWS_ACCESS_KEY_ID"),
                 "secret": get_secret("AWS_SECRET_ACCESS_KEY")
             }
-        )
-            .persist()
-        )
+        ).map(path=lambda file: file.path, output=str).persist()
 
         return image_df
 
@@ -101,3 +99,8 @@ class MelondyBaseDataset():
         embeddings_pd = all_records_arrow.to_pandas()
 
         return embeddings_pd
+
+class LyricsRow(BaseModel):
+    artist: str
+    album: str
+    tracks: dict
